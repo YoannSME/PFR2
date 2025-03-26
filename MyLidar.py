@@ -171,7 +171,7 @@ class FindTransformation():
         
         # Trouver la meilleure rotation
         self.scan1 = self.__apply_transformation_matrix(self.src, initial_transformation_matrix)
-        self.scan1, self.scan2 = self.__remove_farthest_points(self.scan1, self.dst, percentage=self.filterStrenght)
+        self.scan1, self.scan2 = self.__remove_farthest_points(self.scan1, self.dst, percentage=0.05)
         best_rotation, _ = self.__rotate_scan(self.scan1, self.scan2, rotation_steps)
         
         # Appliquer la rotation à scan1
@@ -226,7 +226,6 @@ class MyLidar(RPLidar):
         while(data.shape[0] <= nbData):
             scan = next(iterator)
             data = np.vstack((data, scan))
-            
         self.stop()
         self.stop_motor()
         # self.disconnect()
@@ -244,9 +243,23 @@ class MyLidar(RPLidar):
         print(f"Données enregistrées dans {filename}")
 
 class Cartographie():
-    def __init__(self, BasePoint):
-        self.carte = np.array((BasePoint))
+    def __init__(self, nbPoints, LidarPort = 'COM3'):
+        self.pos = np.eye(3)
+        self.port = LidarPort
+        self.mL = MyLidar(self.port)
+        self.nbPoints = nbPoints
+        info = self.mL.get_info()
+        health = self.mL.get_health()
+        print(info, health)
     
+        self.carte = self.mL.getScanData(self.nbPoints, format=1)
+        
+        #For Plotting :
+        self.estimateSizeOfRoom = None
+        self.fig, self.ax = plt.subplots()
+        self.scatter = None
+        plt.ion()
+        
     def __apply_transformation_matrix(self, points, transformation_matrix):
         # Convertir les points en coordonnées homogènes (ajouter une colonne de 1)
         ones = np.ones((points.shape[0], 1))
@@ -343,27 +356,51 @@ class Cartographie():
             writer.writerows(data)
         print(f"Données enregistrées dans {filename}")
     
+    def __forPlotting(self):
+        estimate_rotation, estimate_translation = FindTransformation.extract_rotation_translation(None, self.pos)
+        estimateSizeOfRoom = ((np.min(self.carte[0]), np.max(self.carte[0])), (np.min(self.carte[1]), np.max(self.carte[1])))
+        x, y = estimate_translation  # Position de l'objet
+        theta = estimate_rotation  # Orientation en radians
+        
+        scale = 300  # Échelle des flèches
+        dx, dy = scale * np.cos(theta), scale * np.sin(theta)
+        
+        # Axe X (rouge) et Axe Y (Vert) de l'objet
+        self.ax.clear()
+        if (self.estimateSizeOfRoom != None):
+            self.ax.set_xlim(self.estimateSizeOfRoom[0][0], self.estimateSizeOfRoom[0][1])
+            self.ax.set_ylim(-self.estimateSizeOfRoom[1][0], self.estimateSizeOfRoom[1][1])
+            
+        plt.quiver(x, y, dx, dy, color='r', angles='xy', scale_units='xy', scale=1, width=0.002)
+        plt.quiver(x, y, -dy, dx, color='g', angles='xy', scale_units='xy', scale=1, width=0.002)
+        
+        self.ax.scatter(*zip(*self.carte), s=5, c='blue')
+        plt.scatter(self.carte[:, 0], self.carte[:, 1], color='black')
+        plt.title(f"Estimation de la position:\nOrientation: {np.rad2deg(estimate_rotation):.2f}°        "
+                f"Position x : {estimate_translation[0]:.2f}mm  y : {estimate_translation[1]:.2f}mm")
+        self.fig.canvas.draw()
+        plt.pause(0.01)
+
+
+
+        # # Ajout du titre
+
+        # plt.show()
     
+    def update_carte(self, ploting=False, debugPloting=False):
+        new_data = self.mL.getScanData(self.nbPoints, format=1)
+        ft = FindTransformation(new_data, carte.carte, filterStrenght=0.1)
+        self.pos = ft.get_transform(ploting=debugPloting, initial_transformation_matrix=self.pos)
+        carte.ajouter_scan(new_data, self.pos)
+        if ploting:
+            self.__forPlotting()
 #Use of Mylidar
 
-PORT = 'COM3'
-mL = MyLidar(PORT)
-info = mL.get_info()
-health = mL.get_health()
-print(info, health)
+carte = Cartographie(260)
 
-
-old_data = mL.getScanData(360, format=1)
-carte = Cartographie(old_data)
-TM= np.eye(3)
-
-for i in range(100):
+for i in range(10000):
     # input("Appuyez sur Entrée pour continuer...")  # Attend un appui sur Entrée
+    carte.update_carte(ploting=True)
 
-    new_data = mL.getScanData(360, format=1)    
-    ft = FindTransformation(new_data, carte.carte, filterStrenght=0.1)
-    TM = ft.get_transform(ploting=True, initial_transformation_matrix=TM)
-    carte.ajouter_scan(new_data, TM)
-
-    plt.scatter(carte.carte[:, 0], carte.carte[:, 1], color='black', label='Source')
-    plt.show()
+plt.scatter(carte.carte[:, 0], carte.carte[:, 1], color='black', label='Source')
+plt.show()
