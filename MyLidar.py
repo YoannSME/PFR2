@@ -219,19 +219,19 @@ class MyLidar(RPLidar):
         return np.column_stack((x, y))
       
     def getScanData(self, nbData, format=0):
-        # start_time = time.time()
-        iterator = self.iter_scans()
-        scan = next(iterator)
-        data = np.array(scan)
-        while(data.shape[0] <= nbData):
-            scan = next(iterator)
-            data = np.vstack((data, scan))
+        data = []
+        try:
+            for measurment in self.iter_measures():
+                if measurment[1] >= 10:
+                    data.append(measurment)
+                if (len(data)>= nbData):
+                    break
+        except:
+            pass
         self.stop()
         self.stop_motor()
-        # self.disconnect()
-        if format == 1: data = self.__convert_lidar_to_cartesian(data[:nbData, 1:])
-        else: data = data[:nbData, 1:]
-        # print(f"Duration : {(time.time()-start_time)}ms")
+        data = (np.array(data))[:, 2:]
+        if format == 1: data = self.__convert_lidar_to_cartesian(data)
         return data
     
     def save_to_csv(self, filename, data):
@@ -396,7 +396,7 @@ class Cartographie():
             self.__forPlotting()
 #Use of Mylidar
 
-carte = Cartographie(260)
+carte = Cartographie(260, LidarPort = 'COM3')
 
 for i in range(10000):
     # input("Appuyez sur Entrée pour continuer...")  # Attend un appui sur Entrée
