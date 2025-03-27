@@ -1,5 +1,4 @@
-
-from ServeurClass import * 
+from ServeurClass import Server
 
 if __name__ == '__main__':
     # Création et démarrage du serveur Flask

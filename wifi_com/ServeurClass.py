@@ -1,5 +1,23 @@
 from flask import Flask
 
+"""
+Date : 28 mars 2025
+Auteur : Axel Sichi
+Classe Server qui crée un serveur Flask simple pour répondre à deux endpoints : 
+- `/take_picture` pour prendre une photo
+- `/take_Lidar` pour prendre un scan Lidar
+
+Attributs:
+- app : Flask - L'application Flask pour gérer les requêtes HTTP.
+- host : str - L'adresse IP sur laquelle le serveur écoute (par défaut '0.0.0.0').
+- port : int - Le port sur lequel le serveur écoute (par défaut 5000).
+
+Méthodes:
+- take_picture(self) : Retourne la photo qui a été prise.
+- take_Lidar(self) : Retourne le scan Lidar qui a été effectué.
+- run(self) : Démarre le serveur Flask pour commencer à écouter les requêtes.
+"""
+
 class Server:
     def __init__(self, host='0.0.0.0', port=5000):
         # Initialisation de l'application Flask

@@ -1,4 +1,4 @@
-from ClientClass import *
+from ClientClass import Client
 
 if __name__ == '__main__':    
     # Création d'un client et récupération du message
