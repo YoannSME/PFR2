@@ -220,17 +220,14 @@ class MyLidar(RPLidar):
       
     def getScanData(self, nbData, format=0):
         data = []
-        try:
-            for measurment in self.iter_measures():
+        for measurment in self.iter_measures():
                 if measurment[1] >= 10:
                     data.append(measurment)
                 if (len(data)>= nbData):
                     break
-        except:
-            pass
         self.stop()
         self.stop_motor()
-        data = (np.array(data))[:, 2:]
+        data = np.array(data)[:, 2:]
         if format == 1: data = self.__convert_lidar_to_cartesian(data)
         return data
     
@@ -379,13 +376,7 @@ class Cartographie():
         plt.title(f"Estimation de la position:\nOrientation: {np.rad2deg(estimate_rotation):.2f}°        "
                 f"Position x : {estimate_translation[0]:.2f}mm  y : {estimate_translation[1]:.2f}mm")
         self.fig.canvas.draw()
-        plt.pause(0.01)
-
-
-
-        # # Ajout du titre
-
-        # plt.show()
+        plt.pause(1)
     
     def update_carte(self, ploting=False, debugPloting=False):
         new_data = self.mL.getScanData(self.nbPoints, format=1)
@@ -396,7 +387,7 @@ class Cartographie():
             self.__forPlotting()
 #Use of Mylidar
 
-carte = Cartographie(260, LidarPort = 'COM3')
+carte = Cartographie(500, LidarPort = '/dev/ttyUSB0')
 
 for i in range(10000):
     # input("Appuyez sur Entrée pour continuer...")  # Attend un appui sur Entrée
