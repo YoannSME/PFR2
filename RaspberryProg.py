@@ -11,3 +11,8 @@ class Robot(Server):
         data = self.lidar.getScanData(360, format=1)
         return data
     
+if __name__ == '__main__':    
+    # Création d'un client et récupération du message
+    Robot = Robot(LidarPort = '/dev/ttyUSB0')
+    print(f"Serveur démarré sur {Robot.host}:{Robot.port}")
+    
