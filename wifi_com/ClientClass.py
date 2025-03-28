@@ -1,4 +1,6 @@
 import requests
+import json
+import numpy as np
 
 """
 Date : 28 mars 2025
@@ -25,5 +27,12 @@ class Client:
         url = f'http://{self.server_ip}:{self.port}/{endPoint}'
         response = requests.get(url)
         return response.text
+    
+    def json_to_numpy(self, json_str):
+        try:
+            return np.array(json.loads(json_str))
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"Erreur lors de la conversion: {e}")
+            return None
 
 

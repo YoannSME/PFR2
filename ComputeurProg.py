@@ -1,4 +1,5 @@
 from wifi_com.ClientClass import Client
+
 # from lidar.CartographieClass import Cartographie
 # from lidar.FindTransformationClass import FindTransformation
 
@@ -7,5 +8,5 @@ if __name__ == '__main__':
     client = Client('192.168.0.36')  # Remplace par l'IP du Raspberry Pi
     while True:
         input("Press Entrer")
-        message = client.getFromServeur('take_Lidar')
-        print(message)
+        message = client.json_to_numpy(client.getFromServeur('take_Lidar'))
+        print(message.shape)
