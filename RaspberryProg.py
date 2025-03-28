@@ -1,6 +1,8 @@
 from lidar.MyLidarClass import MyLidar
 from wifi_com.ServeurClass import Server
 
+from flask import jsonify
+
 class Robot(Server):
     def __init__(self, LidarPort = '/dev/ttyUSB0'):
         super().__init__()
@@ -9,7 +11,7 @@ class Robot(Server):
         
     def take_Lidar(self):
         data = self.lidar.getScanData(360, format=1)
-        return data
+        return jsonify(data.tolist())
     
 if __name__ == '__main__':    
     # Création d'un client et récupération du message
