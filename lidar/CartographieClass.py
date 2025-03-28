@@ -32,16 +32,9 @@ Cette classe repose sur des outils comme MyLidar pour interagir avec le lidar et
 
 
 class Cartographie():
-    def __init__(self, nbPoints, LidarPort = 'COM3'):
+    def __init__(self):
         self.pos = np.eye(3)
-        self.port = LidarPort
-        self.mL = MyLidar(self.port)
-        self.nbPoints = nbPoints
-        info = self.mL.get_info()
-        health = self.mL.get_health()
-        print(info, health)
-    
-        self.carte = self.mL.getScanData(self.nbPoints, format=1)
+        self.carte = None
         
         #For Plotting :
         self.estimateSizeOfRoom = None
@@ -136,15 +129,7 @@ class Cartographie():
         self.carte = self.__clean_map_by_density()
         
         self.carte = np.vstack((self.carte, newScan))
-        
-    def save_to_csv(self, filename, data):
-        """Enregistre les données sous forme de CSV."""
-        with open(filename, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["X", "Y"])  # En-têtes
-            writer.writerows(data)
-        print(f"Données enregistrées dans {filename}")
-    
+       
     def __forPlotting(self):
         estimate_rotation, estimate_translation = FindTransformation.extract_rotation_translation(None, self.pos)
         estimateSizeOfRoom = ((np.min(self.carte[0]), np.max(self.carte[0])), (np.min(self.carte[1]), np.max(self.carte[1])))
@@ -170,10 +155,22 @@ class Cartographie():
         self.fig.canvas.draw()
         plt.pause(1)
     
-    def update_carte(self, ploting=False, debugPloting=False):
-        new_data = self.mL.getScanData(self.nbPoints, format=1)
-        ft = FindTransformation(new_data, self.carte, filterStrenght=0.1)
-        self.pos = ft.get_transform(ploting=debugPloting, initial_transformation_matrix=self.pos)
-        self.__ajouter_scan(new_data, self.pos)
-        if ploting:
-            self.__forPlotting()
+    def update_carte(self, new_data, ploting=False, debugPloting=False):
+        
+        if self.carte == None:
+            self.carte = new_data
+        else:
+            ft = FindTransformation(new_data, self.carte, filterStrenght=0.1)
+            self.pos = ft.get_transform(ploting=debugPloting, initial_transformation_matrix=self.pos)
+            self.__ajouter_scan(new_data, self.pos)
+        
+            if ploting:
+                self.__forPlotting()
+            
+    def save_to_csv(self, filename, data):
+        """Enregistre les données sous forme de CSV."""
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["X", "Y"])  # En-têtes
+            writer.writerows(data)
+        print(f"Données enregistrées dans {filename}")
