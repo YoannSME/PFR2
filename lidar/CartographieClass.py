@@ -1,5 +1,4 @@
 from FindTransformationClass import FindTransformation
-from MyLidarClass import MyLidar
 
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.pyplot as plt
@@ -34,7 +33,7 @@ Cette classe repose sur des outils comme MyLidar pour interagir avec le lidar et
 class Cartographie():
     def __init__(self):
         self.pos = np.eye(3)
-        self.carte = None
+        self.carte = np.eye(1)
         
         #For Plotting :
         self.estimateSizeOfRoom = None
@@ -55,7 +54,7 @@ class Cartographie():
 
         return transformed_points
     
-    def __clean_map_by_density(self, k=20, low_percentile=10, high_percentile=90):
+    def __clean_map_by_density(self, k=20, low_percentile=1, high_percentile=90):
         """
         Nettoie un nuage de points 2D en supprimant les points dans les zones
         de forte et faible densité.
@@ -76,8 +75,11 @@ class Cartographie():
         nbrs = NearestNeighbors(n_neighbors=k).fit(self.carte)
         distances, _ = nbrs.kneighbors(self.carte)
         
-        # Densité estimée comme l'inverse de la distance moyenne aux k voisins
-        density = 1 / np.mean(distances[:, 1:], axis=1)  # On ignore la première distance (le point lui-même)
+        try: # J'ai pas réussi à fix les warnings
+            # Densité estimée comme l'inverse de la distance moyenne aux k voisins
+            density = 1 / np.mean(distances[:, 1:], axis=1)  # On ignore la première distance (le point lui-même)
+        except:
+            pass
         
         # Définition des seuils relatifs
         low_thresh = np.percentile(density, low_percentile)
@@ -157,7 +159,7 @@ class Cartographie():
     
     def update_carte(self, new_data, ploting=False, debugPloting=False):
         
-        if self.carte == None:
+        if self.carte.shape[0] <= 1:
             self.carte = new_data
         else:
             ft = FindTransformation(new_data, self.carte, filterStrenght=0.1)
