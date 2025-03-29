@@ -6,6 +6,16 @@ AF_DCMotor moteurAvantDroit(3);
 AF_DCMotor moteurDerriereDroite(2); 
 AF_DCMotor moteurDerriereGauche(1);
 
+// Définition des capteurs ultrasons
+const int trigPinGauche = 52;
+const int echoPinGauche = 53;
+const int trigPinAvant = 44;
+const int echoPinAvant = 45;
+const int trigPinDroite = 38;
+const int echoPinDroite = 39;
+
+const int seuilDetection = 20;
+
 void setup() {
   Serial.begin(9600);  // Communication série pour le moniteur série (port USB)
   Serial.println("Initialisation des moteurs...");
@@ -13,51 +23,78 @@ void setup() {
   // Communication série pour le module Bluetooth (port série 1 ou un autre port)
   Serial1.begin(9600);  // Utilisation de Serial1 pour la communication Bluetooth
 
+  // Configuration des broches des capteurs
+  pinMode(trigPinGauche, OUTPUT);
+  pinMode(echoPinGauche, INPUT);
+  pinMode(trigPinAvant, OUTPUT);
+  pinMode(echoPinAvant, INPUT);
+  pinMode(trigPinDroite, OUTPUT);
+  pinMode(echoPinDroite, INPUT);
+
   // Réglage de la vitesse des moteurs
-  setVitesse(255);
+  setVitesse(200);
 
   // Arrêt initial des moteurs
   stopMoteurs();
 }
 
+
 void loop() {
+  static char statutRob = 'S';
   if (Serial1.available() > 0) {  // Lire la commande envoyée par Bluetooth
-    char commande = Serial1.read();  // Lire la commande envoyée par le module Bluetooth
+    char commande = Serial1.read();
     Serial.println(commande);
-    if (!stopObstacle() && commande == 'F') {
-      Serial.println("Forward");
-      // Avancer
-      avancer();
-    } 
-    else if (!stopObstacle() && commande == 'B') {
-      Serial.println("Backward");
-      // Reculer
-      reculer();
-    } 
-    else if (!stopObstacle() && commande == 'L') {
-      Serial.println("Left");
-      // Tourner à gauche
-      tournerGauche();
-    }
-    else if (!stopObstacle() && commande == 'R') {
-      Serial.println("Right");
-      // Tourner à droite
-      tournerDroite();
-    } 
-    else if(!stopObstacle() && commande == 'S'){
+
+    
+    if (commande == 'F') {
+      if (stopObstacle(trigPinAvant, echoPinAvant, seuilDetection)) {
       stopMoteurs();
     }
-
+    else{
+      avancer();
+    }
+    }
+    else if (commande == 'B') { // voir pour arreter avec stopObstacle()
+      statutRob = 'B';
+      reculer();
+    }
+    else if (!stopObstacle(trigPinGauche, echoPinGauche, seuilDetection) && commande == 'L') {
+      statutRob = 'L';
+      tournerGauche();
+    }
+    else if (!stopObstacle(trigPinDroite, echoPinDroite, seuilDetection) && commande == 'R') {
+      statutRob = 'R';
+      tournerDroite();
+    } 
+    else if (commande == 'S') {
+      statutRob = 'S';
+      stopMoteurs();
+    }
   }
 }
-// Fonction pour interrompre execution si obstacle
-void stopObstacle(){
 
+// Fonction pour interrompre l'exécution si un obstacle est trop proche
+bool stopObstacle(const int trigPin, const int echoPin, int seuilDetection) {// Seuil de détection en cm
+  int distance = getDistance(trigPin, echoPin);
 
+  // Si un obstacle est détecté devant ou sur les côtés, on stoppe
+  return (distance < seuilDetection);
+}
+
+// Fonction pour mesurer la distance avec un capteur ultrason
+long getDistance(int trigPin, int echoPin) {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  long duration = pulseIn(echoPin, HIGH, 30000);
+  return (duration > 0) ? (duration * 0.034 / 2) : 400;
 }
 
 // Fonction pour avancer
-void avancer() {
+void reculer() {
   moteurAvantGauche.run(FORWARD);
   moteurAvantDroit.run(FORWARD);
   moteurDerriereDroite.run(FORWARD);
@@ -65,7 +102,7 @@ void avancer() {
 }
 
 // Fonction pour reculer
-void reculer() {
+void avancer() {
   moteurAvantGauche.run(BACKWARD);
   moteurAvantDroit.run(BACKWARD);
   moteurDerriereDroite.run(BACKWARD);
@@ -73,7 +110,7 @@ void reculer() {
 }
 
 // Fonction pour tourner à gauche
-void tournerGauche() {
+void tournerDroite() {
   moteurAvantGauche.run(BACKWARD);
   moteurAvantDroit.run(FORWARD);
   moteurDerriereDroite.run(FORWARD);
@@ -81,7 +118,7 @@ void tournerGauche() {
 }
 
 // Fonction pour tourner à droite
-void tournerDroite() {
+void tournerGauche() {
   moteurAvantGauche.run(FORWARD);
   moteurAvantDroit.run(BACKWARD);
   moteurDerriereDroite.run(BACKWARD);
