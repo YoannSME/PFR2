@@ -1,0 +1,4 @@
+enum{
+    BALLE,
+    CARRE
+}forme;
