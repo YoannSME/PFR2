@@ -1,5 +1,6 @@
 {
     "en": {
+        "menu_principal": "Main Menu",
         "menu_deplacement": "Movement",
         "menu_configuration": "Configuration",
         "menu_langue": "Language",
@@ -8,6 +9,7 @@
         "option_commande": "Keyboard"
     },
     "fr": {
+        "menu_principal": "Menu Principal",
         "menu_deplacement": "Déplacement",
         "menu_configuration": "Configuration",
         "menu_langue": "Langue",

@@ -106,13 +106,29 @@ class DeplacementMenu(SousInterface):
             self.traduction.traduire("option_commande"),
         ]
         
+        # Récupération de la taille de l'écran
+        screen_width, screen_height = screen.get_size()
+        
+        # Nettoyage de l'écran
         screen.fill((30, 30, 30))
-        font = pygame.font.Font(None, 50)
+
+        # Affichage du titre
+        font_title = pygame.font.Font(None, screen_height // 12)  # Taille adaptative
+        title_surface = font_title.render(self.traduction.traduire("menu_deplacement"), True, (255, 255, 255))
+        title_rect = title_surface.get_rect(center=(screen_width // 2, screen_height // 8))
+        screen.blit(title_surface, title_rect)
+
+        # Affichage des options
+        font = pygame.font.Font(None, screen_height // 15)  # Taille adaptative
+        option_spacing = screen_height // 10  # Espacement adaptatif
+        start_y = screen_height // 3  # Début des options
+
         for i, option in enumerate(self.options):
             color = (200, 200, 0) if i == self.selected_index else (255, 255, 255)
             text_surface = font.render(option, True, color)
-            text_rect = text_surface.get_rect(center=(400, 200 + i * 60))
+            text_rect = text_surface.get_rect(center=(screen_width // 2, start_y + i * option_spacing))
             screen.blit(text_surface, text_rect)
+
         pygame.display.flip()
 
 class ConfigurationMenu(SousInterface):
@@ -150,13 +166,29 @@ class ConfigurationMenu(SousInterface):
             self.active_child.render(screen)
             return
         
+        # Récupération de la taille de l'écran
+        screen_width, screen_height = screen.get_size()
+        
+        # Nettoyage de l'écran
         screen.fill((30, 30, 30))
-        font = pygame.font.Font(None, 50)
+
+        # Affichage du titre
+        font_title = pygame.font.Font(None, screen_height // 12)  # Taille adaptative
+        title_surface = font_title.render(self.traduction.traduire("menu_configuration"), True, (255, 255, 255))
+        title_rect = title_surface.get_rect(center=(screen_width // 2, screen_height // 8))
+        screen.blit(title_surface, title_rect)
+
+        # Affichage des options
+        font = pygame.font.Font(None, screen_height // 15)  # Taille adaptative
+        option_spacing = screen_height // 10  # Espacement adaptatif
+        start_y = screen_height // 3  # Début des options
+
         for i, option in enumerate(self.options):
             color = (200, 200, 0) if i == self.selected_index else (255, 255, 255)
             text_surface = font.render(option, True, color)
-            text_rect = text_surface.get_rect(center=(400, 200 + i * 60))
+            text_rect = text_surface.get_rect(center=(screen_width // 2, start_y + i * option_spacing))
             screen.blit(text_surface, text_rect)
+
         pygame.display.flip()
 
 class LangueMenu(SousInterface):
@@ -188,13 +220,33 @@ class LangueMenu(SousInterface):
         print(f"Langue changée en {nouvelle_langue}")
     
     def render(self, screen):
+        if self.active_child:
+            self.active_child.render(screen)
+            return
+        
+        # Récupération de la taille de l'écran
+        screen_width, screen_height = screen.get_size()
+        
+        # Nettoyage de l'écran
         screen.fill((30, 30, 30))
-        font = pygame.font.Font(None, 50)
+
+        # Affichage du titre
+        font_title = pygame.font.Font(None, screen_height // 12)  # Taille adaptative
+        title_surface = font_title.render(self.traduction.traduire("menu_langue"), True, (255, 255, 255))
+        title_rect = title_surface.get_rect(center=(screen_width // 2, screen_height // 8))
+        screen.blit(title_surface, title_rect)
+
+        # Affichage des options
+        font = pygame.font.Font(None, screen_height // 15)  # Taille adaptative
+        option_spacing = screen_height // 10  # Espacement adaptatif
+        start_y = screen_height // 3  # Début des options
+
         for i, option in enumerate(self.options):
             color = (200, 200, 0) if i == self.selected_index else (255, 255, 255)
             text_surface = font.render(option, True, color)
-            text_rect = text_surface.get_rect(center=(400, 200 + i * 60))
+            text_rect = text_surface.get_rect(center=(screen_width // 2, start_y + i * option_spacing))
             screen.blit(text_surface, text_rect)
+
         pygame.display.flip()
 
 class MenuPrincipal(SousInterface):
@@ -234,24 +286,41 @@ class MenuPrincipal(SousInterface):
         if self.active_child:
             self.active_child.render(screen)
             return
-        
+
+        # Mise à jour dynamique des options traduites
         self.options = [
             self.traduction.traduire("menu_deplacement"),
             self.traduction.traduire("menu_configuration"),
             self.traduction.traduire("menu_langue"),
         ]
+
+        # Récupération de la taille de l'écran
+        screen_width, screen_height = screen.get_size()
         
+        # Nettoyage de l'écran
         screen.fill((30, 30, 30))
-        font = pygame.font.Font(None, 50)
+
+        # Affichage du titre
+        font_title = pygame.font.Font(None, screen_height // 12)  # Taille adaptative
+        title_surface = font_title.render(self.traduction.traduire("menu_principal"), True, (255, 255, 255))
+        title_rect = title_surface.get_rect(center=(screen_width // 2, screen_height // 8))
+        screen.blit(title_surface, title_rect)
+
+        # Affichage des options
+        font = pygame.font.Font(None, screen_height // 15)  # Taille adaptative
+        option_spacing = screen_height // 10  # Espacement adaptatif
+        start_y = screen_height // 3  # Début des options
+
         for i, option in enumerate(self.options):
             color = (200, 200, 0) if i == self.selected_index else (255, 255, 255)
             text_surface = font.render(option, True, color)
-            text_rect = text_surface.get_rect(center=(400, 200 + i * 60))
+            text_rect = text_surface.get_rect(center=(screen_width // 2, start_y + i * option_spacing))
             screen.blit(text_surface, text_rect)
+
         pygame.display.flip()
 
 class InterfaceGlobale:
-    def __init__(self, width=800, height=600):
+    def __init__(self, width=1920, height=1080):
         pygame.init()
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Interface PFR")
