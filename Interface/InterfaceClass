@@ -1,4 +1,5 @@
 import pygame
+from TraductionClass import Traduction
 
 class Manette:
     def __init__(self):
@@ -37,7 +38,8 @@ class Manette:
         return pressed_dpad
 
 class SousInterface:
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, traduction=None):
+        self.traduction = traduction
         self.parent = parent
         self.children = []
         self.active_child = None
@@ -64,13 +66,16 @@ class SousInterface:
         if self.active_child:
             self.active_child.render(screen)
 
-class OptionsMenu(SousInterface):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.options = ["Son", "Graphismes", "Retour"]
+class DeplacementMenu(SousInterface):
+    def __init__(self, parent=None, traduction=None):
+        super().__init__(parent, traduction=traduction)
         self.selected_index = 0
     
     def handle_events(self, manette):
+        if self.active_child:
+            self.active_child.handle_events(manette)
+            return        
+        
         super().handle_events(manette)
         dpad_x, dpad_y = manette.get_dpad_pressed()
         buttons = manette.get_button_pressed()
@@ -80,17 +85,28 @@ class OptionsMenu(SousInterface):
         elif dpad_y == -1:
             self.selected_index = (self.selected_index + 1) % len(self.options)
         
-        if 0 in buttons:  # Bouton A
+        if 1 in buttons:  # Bouton A
+            self.parent.set_active_child(None)
+            
+        elif 0 in buttons:  # Bouton A
             self.on_select()
     
     def on_select(self):
         selected_option = self.options[self.selected_index]
         print(f"Option sélectionnée: {selected_option}")
-        if selected_option == "Retour" and self.parent:
-            self.parent.set_active_child(None)
     
     def render(self, screen):
-        screen.fill((50, 50, 50))
+        if self.active_child:
+            self.active_child.render(screen)
+            return
+        
+        self.options = [
+            self.traduction.traduire("option_automatique"),
+            self.traduction.traduire("option_manette"),
+            self.traduction.traduire("option_commande"),
+        ]
+        
+        screen.fill((30, 30, 30))
         font = pygame.font.Font(None, 50)
         for i, option in enumerate(self.options):
             color = (200, 200, 0) if i == self.selected_index else (255, 255, 255)
@@ -99,13 +115,11 @@ class OptionsMenu(SousInterface):
             screen.blit(text_surface, text_rect)
         pygame.display.flip()
 
-class MenuPrincipal(SousInterface):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.options = ["Jouer", "Options", "Quitter"]
+class ConfigurationMenu(SousInterface):
+    def __init__(self, parent=None, traduction=None):
+        super().__init__(parent, traduction=traduction)
+        self.options = ["Configuration1", "Configuration2", "Configuration3"]
         self.selected_index = 0
-        self.options_menu = OptionsMenu(self)
-        self.add_child(self.options_menu)
     
     def handle_events(self, manette):
         if self.active_child:
@@ -121,16 +135,15 @@ class MenuPrincipal(SousInterface):
         elif dpad_y == -1:
             self.selected_index = (self.selected_index + 1) % len(self.options)
         
-        if 0 in buttons:  # Bouton A
+        if 1 in buttons:  # Bouton A
+            self.parent.set_active_child(None)
+            
+        elif 0 in buttons:  # Bouton A
             self.on_select()
     
     def on_select(self):
         selected_option = self.options[self.selected_index]
         print(f"Option sélectionnée: {selected_option}")
-        if selected_option == "Options":
-            self.set_active_child(self.options_menu)
-        elif selected_option == "Quitter" and self.parent:
-            self.parent.running = False
     
     def render(self, screen):
         if self.active_child:
@@ -146,17 +159,109 @@ class MenuPrincipal(SousInterface):
             screen.blit(text_surface, text_rect)
         pygame.display.flip()
 
+class LangueMenu(SousInterface):
+    def __init__(self, parent=None, traduction=None):
+        super().__init__(parent, traduction=traduction)
+        self.options = ["English", "Français"]
+        self.selected_index = 0
+    
+    def handle_events(self, manette):
+        super().handle_events(manette)
+        dpad_x, dpad_y = manette.get_dpad_pressed()
+        buttons = manette.get_button_pressed()
+        
+        if dpad_y == 1:
+            self.selected_index = (self.selected_index - 1) % len(self.options)
+        elif dpad_y == -1:
+            self.selected_index = (self.selected_index + 1) % len(self.options)
+        
+        if 1 in buttons:  # Bouton A
+            self.parent.set_active_child(None)
+            
+        elif 0 in buttons:  # Bouton A
+            self.on_select()
+    
+    def on_select(self):
+        nouvelle_langue = "en" if self.selected_index == 0 else "fr"
+        self.traduction.changer_langue(nouvelle_langue)
+        print(self.traduction.langue)
+        print(f"Langue changée en {nouvelle_langue}")
+    
+    def render(self, screen):
+        screen.fill((30, 30, 30))
+        font = pygame.font.Font(None, 50)
+        for i, option in enumerate(self.options):
+            color = (200, 200, 0) if i == self.selected_index else (255, 255, 255)
+            text_surface = font.render(option, True, color)
+            text_rect = text_surface.get_rect(center=(400, 200 + i * 60))
+            screen.blit(text_surface, text_rect)
+        pygame.display.flip()
+
+class MenuPrincipal(SousInterface):
+    def __init__(self, parent=None, traduction=None):
+        super().__init__(parent, traduction=traduction)
+        self.selected_index = 0
+        self.add_child(DeplacementMenu(self, traduction=traduction))
+        self.add_child(ConfigurationMenu(self, traduction=traduction))
+        self.add_child(LangueMenu(self, traduction=traduction))
+    
+    def handle_events(self, manette):
+        if self.active_child:
+            self.active_child.handle_events(manette)
+            return
+        
+        super().handle_events(manette)
+        dpad_x, dpad_y = manette.get_dpad_pressed()
+        buttons = manette.get_button_pressed()
+        
+        if dpad_y == 1:
+            self.selected_index = (self.selected_index - 1) % len(self.options)
+        elif dpad_y == -1:
+            self.selected_index = (self.selected_index + 1) % len(self.options)
+        
+        if 1 in buttons:  # Bouton A
+            self.parent.running = False
+            
+        elif 0 in buttons:  # Bouton A
+            self.on_select()
+    
+    def on_select(self):
+        selected_option = self.options[self.selected_index]
+        print(f"Option sélectionnée: {selected_option}")
+        self.set_active_child(self.children[self.selected_index])
+    
+    def render(self, screen):
+        if self.active_child:
+            self.active_child.render(screen)
+            return
+        
+        self.options = [
+            self.traduction.traduire("menu_deplacement"),
+            self.traduction.traduire("menu_configuration"),
+            self.traduction.traduire("menu_langue"),
+        ]
+        
+        screen.fill((30, 30, 30))
+        font = pygame.font.Font(None, 50)
+        for i, option in enumerate(self.options):
+            color = (200, 200, 0) if i == self.selected_index else (255, 255, 255)
+            text_surface = font.render(option, True, color)
+            text_rect = text_surface.get_rect(center=(400, 200 + i * 60))
+            screen.blit(text_surface, text_rect)
+        pygame.display.flip()
+
 class InterfaceGlobale:
     def __init__(self, width=800, height=600):
         pygame.init()
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Interface Manette")
+        pygame.display.set_caption("Interface PFR")
         
         self.running = True
         self.clock = pygame.time.Clock()
         self.manette = Manette()
         
-        self.root_interface = MenuPrincipal(self)
+        self.traduction = Traduction()
+        self.root_interface = MenuPrincipal(self, self.traduction)
     
     def run(self):
         while self.running:
