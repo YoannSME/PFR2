@@ -6,6 +6,12 @@ AF_DCMotor moteurAvantDroit(3);
 AF_DCMotor moteurDerriereDroite(2); 
 AF_DCMotor moteurDerriereGauche(1);
 
+//Définition de la variable globale de mesure du temps
+static unsigned long timeStamp = 0;
+
+//Définition de la variable globale de definition de la fonction en utilisation
+char etatSysteme ='S';
+
 void setup() {
   Serial.begin(9600);
   Serial.println("Initialisation des moteurs...");
@@ -15,16 +21,14 @@ void setup() {
 
   // Arrêt initial des moteurs
   stopMoteurs();
+
+  // Initialisation du chrono
+  timeStamp = millis();
 }
 
 void loop() {
-  //Serial.print("teste");
-  //avancer(400);
-  //delay(200);
-  //zigzag(300, 50, 50); // entree : distance à parcourir, angle, pas du zigzag
-  //carre(100);
+  forward(150);
   right(90);
-  delay(200);
 
 }
 
@@ -44,13 +48,8 @@ void stopMoteurs() {
   moteurDerriereGauche.run(RELEASE);
 }
 
-float conversionDistTemps(float distance){
+float conversionDistTemps(float distance){ //distance en cm
   int duree = (distance / 80)*1000 ; // Temps en millisecondes. 82 represente la vitesse du robot lorsque setVitesse est à 2OO.
-  /*
-  Serial.print("Temps calculé : ");
-  Serial.print(duree);
-  Serial.println(" ms");
-  */
   return duree;
 }
 
@@ -61,76 +60,108 @@ float conversionAngleTemps(float angle){
 
 // NOTE: Les fonctions forward() et backward() sont inversées à cause du branchement des moteurs.
 // Faire reculer le robot
-void backward(float distance){
-  Serial.print("Le robot avance de ");
-  Serial.print(distance);
-  Serial.println(" cm");
-  
-  // Activation des moteurs en avant
-  moteurAvantGauche.run(FORWARD);
-  moteurAvantDroit.run(FORWARD);
-  moteurDerriereDroite.run(FORWARD);
-  moteurDerriereGauche.run(FORWARD); 
-  
-  delay(conversionDistTemps(distance));
-  stopMoteurs();
+void backward(float distance) {
+
+  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
+  if((timeStamp<=0) && (etatSysteme == 'S')){
+    timeStamp = millis() + conversionDistTemps(distance);
+    etatSysteme = 'B';
+  }
+
+  if ((timeStamp > 0) && (etatSysteme == 'B')){
+    // Activation des moteurs en avant
+    moteurAvantGauche.run(FORWARD);
+    moteurAvantDroit.run(FORWARD);
+    moteurDerriereDroite.run(FORWARD);
+    moteurDerriereGauche.run(FORWARD);
+    
+    //Si le temps d'execution correspond au temps de parcours, on arrête
+    if(millis() >= timeStamp){
+      stopMoteurs();
+      timeStamp = 0;
+      etatSysteme = 'S';
+    }
+  }
 }
 
 // Faire avancer le robot
 void forward(float distance) {
-  Serial.print("Le robot recule de ");
-  Serial.print(distance);
-  Serial.println(" cm");
 
-  // Activation des moteurs en arrière
-  moteurAvantGauche.run(BACKWARD);
-  moteurAvantDroit.run(BACKWARD);
-  moteurDerriereDroite.run(BACKWARD);
-  moteurDerriereGauche.run(BACKWARD);
-  
-  delay(conversionDistTemps(distance));
-  stopMoteurs();
+  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
+  if((timeStamp<=0) && (etatSysteme == 'S')){
+    timeStamp = millis() + conversionDistTemps(distance);
+    etatSysteme = 'F';
+  }
 
-}
-
-// Fonction pour tourner à droite
-void left(float angle) {
-  Serial.print("Le robot tourne à droite de ");
-  Serial.print(angle);
-  Serial.println(" degrés");
-
-  moteurAvantGauche.run(FORWARD);
-  moteurDerriereGauche.run(FORWARD);
-  moteurAvantDroit.run(BACKWARD);
-  moteurDerriereDroite.run(BACKWARD);
-
-  delay(conversionAngleTemps(angle));
-  stopMoteurs();
+  if ((timeStamp > 0) && (etatSysteme == 'F')){
+    // Activation des moteurs en arrière
+    moteurAvantGauche.run(BACKWARD);
+    moteurAvantDroit.run(BACKWARD);
+    moteurDerriereDroite.run(BACKWARD);
+    moteurDerriereGauche.run(BACKWARD);
+    
+    //Si le temps d'execution correspond au temps de parcours, on arrête
+    if(millis() >= timeStamp){
+      stopMoteurs();
+      timeStamp = 0;
+      etatSysteme = 'S';
+    }
+  }
 }
 
 // Fonction pour tourner à gauche
 void right(float angle) {
-  Serial.print("Le robot tourne à gauche de ");
-  Serial.print(angle);
-  Serial.println(" degrés");
 
-  moteurAvantGauche.run(BACKWARD);
-  moteurDerriereGauche.run(BACKWARD);
-  moteurAvantDroit.run(FORWARD);
-  moteurDerriereDroite.run(FORWARD);
+  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
+  if((timeStamp<=0) && (etatSysteme == 'S')){
+    timeStamp = millis() + conversionAngleTemps(angle);
+    etatSysteme = 'R';
+  }
+  if ((timeStamp >= 0) && (etatSysteme == 'R')){
+    moteurAvantGauche.run(BACKWARD);
+    moteurDerriereGauche.run(BACKWARD);
+    moteurAvantDroit.run(FORWARD);
+    moteurDerriereDroite.run(FORWARD);
 
-  delay(conversionAngleTemps(angle));
-  stopMoteurs();
+    //Si le temps d'execution correspond au temps de parcours, on arrête
+    if(millis() >= timeStamp){
+      stopMoteurs();
+      timeStamp = 0;
+      etatSysteme = 'S';
+    }
+  }
+}
+
+
+// Fonction pour tourner à droite
+void left(float angle) {
+
+  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
+  if((timeStamp<=0) && (etatSysteme == 'S')){
+    timeStamp = millis() + conversionAngleTemps(angle);
+    etatSysteme = 'L';
+  }
+  if ((timeStamp >= 0) && (etatSysteme == 'L')){
+    moteurAvantGauche.run(FORWARD);
+    moteurDerriereGauche.run(FORWARD);
+    moteurAvantDroit.run(BACKWARD);
+    moteurDerriereDroite.run(BACKWARD);
+
+    //Si le temps d'execution correspond au temps de parcours, on arrête
+    if(millis() >= timeStamp){
+      stopMoteurs();
+      timeStamp = 0;
+      etatSysteme = 'S';
+    }
+  }
 }
 
 void demiTour() {
-  Serial.println("Demi-tour...");
   right(180);
 }
 
 void zigzag(float distanceTotale, float angle, float pas) { // entree : distance à parcourir, angle, pas du zigzag
-  Serial.println("Début du zig-zag...");
-  
+ 
   float distanceParcourue = 0;
   bool direction = true; // true = gauche, false = droite
 
@@ -146,8 +177,6 @@ void zigzag(float distanceTotale, float angle, float pas) { // entree : distance
 
     direction = !direction; // Inverser la direction pour le prochain zigzag
   }
-
-  Serial.println("Fin du zig-zag.");
 }
 
 void carre(float longueur) {
