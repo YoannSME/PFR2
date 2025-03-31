@@ -1,21 +1,21 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include "Objet.h"
 #include <opencv2/opencv.hpp>
+#include <vector>
 
-enum Forme{
-    BALLE,
-    CARRE
-};
 
 class Image{
     private:
 
-    public Image();
+    public:
+        Image();
+        
 
+    std::vector<Objet> traiterSelonCouleur(cv::Mat &image,Couleur);
+    std::vector<Objet> traiterSelonForme(cv::Mat &image,std::vector<Couleur> couleurs);
 
-    cv::Mat traiterSelonCouleur(cv::Mat,Couleur);
+};
 
-    cv::Mat recupererForme(cv::Mat,Forme)
-
-}
+#endif
