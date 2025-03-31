@@ -78,3 +78,9 @@ std::vector<Objet> Image::traiterSelonCouleur(cv::Mat &image, Couleur couleur)
     }
     return objetsDetectes;
 }
+
+std::pair<int, int> Image::calculerPosition(Objet& objet, const cv::Mat &image) {
+    int centreImX = image.cols / 2;
+    int centreImY = image.rows / 2;
+    return {centreImX -objet.cx, centreImY - objet.cy};
+}

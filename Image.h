@@ -15,6 +15,7 @@ class Image{
 
     std::vector<Objet> traiterSelonCouleur(cv::Mat &image,Couleur);
     std::vector<Objet> traiterSelonForme(cv::Mat &image,std::vector<Couleur> couleurs);
+    std::pair<int, int> calculerPosition(Objet& objet, const cv::Mat &image);
 
 };
 
