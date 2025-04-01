@@ -12,12 +12,14 @@ static unsigned long timeStamp = 0;
 //Définition de la variable globale de definition de la fonction en utilisation
 char etatSysteme ='S';
 
+uint8_t vitesse = 200;
+
 void setup() {
   Serial.begin(9600);
   Serial.println("Initialisation des moteurs...");
 
   // Réglage de la vitesse des moteurs
-  setVitesse(200);
+  setVitesse(vitesse);
 
   // Arrêt initial des moteurs
   stopMoteurs();
@@ -42,6 +44,16 @@ void setVitesse(int vitesse) {
 
 // Fonction pour arrêter tous les moteurs
 void stopMoteurs() {
+  for (int i = vitesse; i>0; i-- ){ // Arret progressif des moteurs
+    setVitesse(i);
+  }
+  moteurAvantGauche.run(RELEASE);
+  moteurAvantDroit.run(RELEASE);
+  moteurDerriereDroite.run(RELEASE);
+  moteurDerriereGauche.run(RELEASE);
+}
+
+void arretUrgence() {
   moteurAvantGauche.run(RELEASE);
   moteurAvantDroit.run(RELEASE);
   moteurDerriereDroite.run(RELEASE);
