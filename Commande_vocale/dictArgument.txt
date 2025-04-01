@@ -1,0 +1,12 @@
+balle
+Balle
+carre
+Carre
+rouge
+Rouge
+bleu
+Bleu
+jaune
+Jaune
+orange
+Orange

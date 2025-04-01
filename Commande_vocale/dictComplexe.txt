@@ -1,0 +1,2 @@
+zigzag : forward(50) right(20) forward(50) left(40) forward(50) right(40) forward(50) left(40)
+demi-tour : forward(100) right(180) forward(100)
