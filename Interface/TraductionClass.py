@@ -7,7 +7,7 @@ class Traduction:
 
     def charger_traductions(self):
         try:
-            with open("Interface/traduction.json", "r", encoding="utf-8") as fichier:
+            with open("Interface/TraductionFile.json", "r", encoding="utf-8") as fichier:
                 return json.load(fichier)
         except FileNotFoundError:
             print("Fichier de traduction non trouvé !")
