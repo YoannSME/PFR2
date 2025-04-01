@@ -79,8 +79,15 @@ void arretUrgence() {
   moteurDerriereGauche.run(RELEASE);
 }
 
-float conversionDistTemps(float distance){ //distance en cm
-  int duree = (distance / 80)*1000 ; // Temps en millisecondes. 82 represente la vitesse du robot lorsque setVitesse est à 2OO.
+float conversionDistTemps(float distance) { // distance en cm
+  // Convertir la vitesse réelle de m/s en cm/ms pour faciliter le calcul
+  float vitesseCmMs = vitesseReelle * 100 / 1000; // Conversion de m/s en cm/ms
+  
+  if (vitesseCmMs <= 0) {
+    return 0; // Éviter la division par zéro si le robot est à l'arrêt
+  }
+  
+  float duree = distance / vitesseCmMs; // Temps en millisecondes
   return duree;
 }
 
