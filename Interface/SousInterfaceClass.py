@@ -1,4 +1,5 @@
 import pygame
+import keyboard
 
 class SousInterface:
     def __init__(self, parent=None, traduction=None):
@@ -14,13 +15,13 @@ class SousInterface:
     def set_active_child(self, child):
         self.active_child = child
     
-    def handle_events(self, manette):
+    def handle_events(self, manette, keyboard):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
         
         if self.active_child:
-            self.active_child.handle_events(manette)
+            self.active_child.handle_events(manette, keyboard)
     
     def on_select(self):
         pass

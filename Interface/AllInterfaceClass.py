@@ -6,24 +6,26 @@ class DeplacementMenu(SousInterface):
         super().__init__(parent, traduction=traduction)
         self.selected_index = 0
     
-    def handle_events(self, manette):
+    def handle_events(self, manette, keyboard):
         if self.active_child:
-            self.active_child.handle_events(manette)
+            self.active_child.handle_events(manette, keyboard)
             return        
         
-        super().handle_events(manette)
+        super().handle_events(manette, keyboard)
         dpad_x, dpad_y = manette.get_dpad_pressed()
         buttons = manette.get_button_pressed()
+        pressed_keys = keyboard.update() 
         
-        if dpad_y == 1:
+        if dpad_y == 1 or "up" in pressed_keys:
             self.selected_index = (self.selected_index - 1) % len(self.options)
-        elif dpad_y == -1:
+            
+        elif dpad_y == -1 or "down" in pressed_keys:
             self.selected_index = (self.selected_index + 1) % len(self.options)
         
-        if 1 in buttons:  # Bouton A
+        if 1 in buttons or "esc" in pressed_keys:  # Bouton A
             self.parent.set_active_child(None)
             
-        elif 0 in buttons:  # Bouton A
+        elif 0 in buttons or "enter" in pressed_keys:  # Bouton A
             self.on_select()
     
     def on_select(self):
@@ -72,24 +74,26 @@ class ConfigurationMenu(SousInterface):
         self.options = ["Configuration1", "Configuration2", "Configuration3"]
         self.selected_index = 0
     
-    def handle_events(self, manette):
+    def handle_events(self, manette, keyboard):
         if self.active_child:
-            self.active_child.handle_events(manette)
-            return
+            self.active_child.handle_events(manette, keyboard)
+            return        
         
-        super().handle_events(manette)
+        super().handle_events(manette, keyboard)
         dpad_x, dpad_y = manette.get_dpad_pressed()
         buttons = manette.get_button_pressed()
+        pressed_keys = keyboard.update() 
         
-        if dpad_y == 1:
+        if dpad_y == 1 or "up" in pressed_keys:
             self.selected_index = (self.selected_index - 1) % len(self.options)
-        elif dpad_y == -1:
+            
+        elif dpad_y == -1 or "down" in pressed_keys:
             self.selected_index = (self.selected_index + 1) % len(self.options)
         
-        if 1 in buttons:  # Bouton A
+        if 1 in buttons or "esc" in pressed_keys:  # Bouton A
             self.parent.set_active_child(None)
             
-        elif 0 in buttons:  # Bouton A
+        elif 0 in buttons or "enter" in pressed_keys:  # Bouton A
             self.on_select()
     
     def on_select(self):
@@ -132,20 +136,26 @@ class LangueMenu(SousInterface):
         self.options = ["English", "Français"]
         self.selected_index = 0
     
-    def handle_events(self, manette):
-        super().handle_events(manette)
+    def handle_events(self, manette, keyboard):
+        if self.active_child:
+            self.active_child.handle_events(manette, keyboard)
+            return        
+        
+        super().handle_events(manette, keyboard)
         dpad_x, dpad_y = manette.get_dpad_pressed()
         buttons = manette.get_button_pressed()
+        pressed_keys = keyboard.update() 
         
-        if dpad_y == 1:
+        if dpad_y == 1 or "up" in pressed_keys:
             self.selected_index = (self.selected_index - 1) % len(self.options)
-        elif dpad_y == -1:
+            
+        elif dpad_y == -1 or "down" in pressed_keys:
             self.selected_index = (self.selected_index + 1) % len(self.options)
         
-        if 1 in buttons:  # Bouton A
+        if 1 in buttons or "esc" in pressed_keys:  # Bouton A
             self.parent.set_active_child(None)
             
-        elif 0 in buttons:  # Bouton A
+        elif 0 in buttons or "enter" in pressed_keys:  # Bouton A
             self.on_select()
     
     def on_select(self):
@@ -192,24 +202,26 @@ class MenuPrincipal(SousInterface):
         self.add_child(ConfigurationMenu(self, traduction=traduction))
         self.add_child(LangueMenu(self, traduction=traduction))
     
-    def handle_events(self, manette):
+    def handle_events(self, manette, keyboard):
         if self.active_child:
-            self.active_child.handle_events(manette)
-            return
+            self.active_child.handle_events(manette, keyboard)
+            return        
         
-        super().handle_events(manette)
+        super().handle_events(manette, keyboard)
         dpad_x, dpad_y = manette.get_dpad_pressed()
         buttons = manette.get_button_pressed()
+        pressed_keys = keyboard.update() 
         
-        if dpad_y == 1:
+        if dpad_y == 1 or "up" in pressed_keys:
             self.selected_index = (self.selected_index - 1) % len(self.options)
-        elif dpad_y == -1:
+            
+        elif dpad_y == -1 or "down" in pressed_keys:
             self.selected_index = (self.selected_index + 1) % len(self.options)
         
-        if 1 in buttons:  # Bouton A
-            self.parent.running = False
+        if 1 in buttons or "esc" in pressed_keys:  # Bouton A
+            self.parent.set_active_child(None)
             
-        elif 0 in buttons:  # Bouton A
+        elif 0 in buttons or "enter" in pressed_keys:  # Bouton A
             self.on_select()
     
     def on_select(self):

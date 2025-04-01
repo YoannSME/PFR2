@@ -1,4 +1,5 @@
 import pygame
+import keyboard
 
 class Manette:
     def __init__(self):
@@ -35,3 +36,25 @@ class Manette:
                         current_dpad[1] if current_dpad[1] != self.previous_dpad[1] else 0)
         self.previous_dpad = current_dpad
         return pressed_dpad
+    
+class Keyboard:
+    def __init__(self):
+        # Stocke l'état précédent des touches pour détecter le front descendant
+        self.previous_keys = {}
+        self.tracked_keys = ["up", "down", "left", "right", "enter", "esc"]
+
+        # Initialise l'état précédent des touches à False (non pressées)
+        for key in self.tracked_keys:
+            self.previous_keys[key] = False
+
+    def update(self):
+        """Met à jour l'état des touches et détecte les fronts descendants."""
+        keys = {key: keyboard.is_pressed(key) for key in self.tracked_keys}
+        pressed_keys = []
+
+        for key in self.tracked_keys:
+            if self.previous_keys[key] and not keys[key]:
+                pressed_keys.append(key)  # Front descendant détecté
+
+        self.previous_keys = keys  # Mise à jour des états précédents
+        return pressed_keys

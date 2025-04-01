@@ -1,6 +1,6 @@
 import pygame
 from Interface.TraductionClass import Traduction
-from Interface.ManetteClass import Manette
+from Interface.InputClass import Manette, Keyboard
 from Interface.AllInterfaceClass import *
 
 class InterfaceGlobale():
@@ -12,13 +12,14 @@ class InterfaceGlobale():
         self.running = True
         self.clock = pygame.time.Clock()
         self.manette = Manette()
+        self.keyboard = Keyboard()
         
         self.traduction = Traduction()
         self.root_interface = MenuPrincipal(self, self.traduction)
     
     def run(self):
         while self.running:
-            self.root_interface.handle_events(self.manette)
+            self.root_interface.handle_events(self.manette, self.keyboard)
             self.root_interface.render(self.screen)
             self.clock.tick(30)
         pygame.quit()
