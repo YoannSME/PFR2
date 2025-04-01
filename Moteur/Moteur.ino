@@ -12,14 +12,15 @@ static unsigned long timeStamp = 0;
 //Définition de la variable globale de definition de la fonction en utilisation
 char etatSysteme ='S';
 
-uint8_t vitesse = 200;
+uint8_t vitesseReelle = 0;
+uint8_t vitessePMW = 0;
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Initialisation des moteurs...");
 
   // Réglage de la vitesse des moteurs
-  setVitesse(vitesse);
+  setVitesse(vitessePMW);
 
   // Arrêt initial des moteurs
   stopMoteurs();
@@ -34,6 +35,16 @@ void loop() {
 
 }
 
+int vitesseToPMW(float vitesse) {  //Prend en entrée une vitesse en m/s et retourne la vitesse en pmw (de 0 à 255)
+    float vmax = 1.26; // Vitesse max en m/s
+    int pwm_max = 255;
+
+    if (vitesse <= 0) return 0;
+    if (vitesse >= vmax) return pwm_max;
+
+    return (int)(vitesse / vmax * pwm_max);
+}
+
 // Fonction pour régler la vitesse de tous les moteurs
 void setVitesse(int vitesse) {
   moteurAvantGauche.setSpeed(vitesse);
@@ -42,9 +53,14 @@ void setVitesse(int vitesse) {
   moteurDerriereGauche.setSpeed(vitesse);
 }
 
+void definirVitesse (float vitessePhysique){
+  vitesseReelle = vitessePhysique;
+  vitessePMW = vitesseToPMW(vitesseReelle);
+}
+
 // Fonction pour arrêter tous les moteurs
 void stopMoteurs() {
-  for (int i = vitesse; i>0; i-- ){ // Arret progressif des moteurs
+  for (int i = vitessePMW; i>0; i-- ){ // Arret progressif des moteurs
     setVitesse(i);
   }
   moteurAvantGauche.run(RELEASE);
@@ -54,6 +70,9 @@ void stopMoteurs() {
 }
 
 void arretUrgence() {
+  vitessePMW = 0;
+  vitesseReelle = 0;
+  setVitesse(0);
   moteurAvantGauche.run(RELEASE);
   moteurAvantDroit.run(RELEASE);
   moteurDerriereDroite.run(RELEASE);
