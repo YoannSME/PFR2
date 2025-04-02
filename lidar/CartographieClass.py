@@ -54,7 +54,7 @@ class Cartographie():
 
         return transformed_points
     
-    def __clean_map_by_density(self, k=20, low_percentile=1, high_percentile=90):
+    def __clean_map_by_density(self, k=20, low_percentile=1, high_percentile=95):
         """
         Nettoie un nuage de points 2D en supprimant les points dans les zones
         de forte et faible densité.
@@ -112,13 +112,13 @@ class Cartographie():
         polar_carte = polar_carte[np.argsort(polar_carte[:, 0])]
 
         for angle_new, dist_new in polar_newPoints:
-            # Trouver les points de la carte dont l'angle est proche (±1°)
-            mask = (polar_carte[:, 0] >= angle_new - 2) & (polar_carte[:, 0] <= angle_new + 2)
+            # Trouver les points de la carte dont l'angle est proche (±3°)
+            mask = (polar_carte[:, 0] >= angle_new - 3) & (polar_carte[:, 0] <= angle_new + 3)
             nearby_points = polar_carte[mask]
 
             for angle_carte, dist_carte in nearby_points:
                 # Si un point de la carte est plus proche que le nouveau point, on le supprime
-                if dist_carte < dist_new:
+                if dist_carte*1.02 < dist_new:
                     polar_carte = polar_carte[~((polar_carte[:, 0] == angle_carte) & (polar_carte[:, 1] == dist_carte))]
 
         self.carte = self.__convert_polar_to_cartesian(polar_carte)
@@ -128,7 +128,7 @@ class Cartographie():
         newScan = self.__apply_transformation_matrix(newScan, TX)
         self.__remove_incoherent_point(newScan)
         
-        self.carte = self.__clean_map_by_density()
+        # self.carte = self.__clean_map_by_density()
         
         self.carte = np.vstack((self.carte, newScan))
        
