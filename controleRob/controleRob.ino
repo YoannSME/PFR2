@@ -15,6 +15,8 @@ const int echoPinAvant = 45;
 const int trigPinDroite = 38;
 const int echoPinDroite = 39;
 
+const int seuilDetection = 20;
+
 void setup() {
   Serial.begin(9600);
   setupBluetooth();
