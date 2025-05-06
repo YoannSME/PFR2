@@ -17,7 +17,7 @@ class Robot(Server):
         image_path = "/home/gp3/Desktop/Images/imageRequete.jpg"
         json_file_path = "/home/gp3/Desktop/Images/image_data.json"
         #Prendre une photo
-        subprocess. run(["libcamera-still","-o","imageRequete.jpg"])
+        subprocess. run(["libcamera-still","-o","/home/gp3/Desktop/Images/imageRequete.jpg"])
         # Ouvrir l'image
         with Image.open(image_path) as img:
             # Convertir l'image en bytes
