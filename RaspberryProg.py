@@ -19,7 +19,7 @@ class Robot(Server):
         data = self.lidar.getScanData(360, format=1)
         return jsonify(data.tolist())
 
-def take_picture(self):
+    def take_picture(self):
         image_path = "/home/gp3/Desktop/Images/imageRequete.jpg"
         self.picam2.capture_file(image_path) #Prendre une photo
 
