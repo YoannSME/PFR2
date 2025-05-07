@@ -1,18 +1,18 @@
 {
     "deplacementLineaire":{
-    "avance" : ["avance", "avancer"],
-    "recule" :["recule","reculer"]
+    "F" : ["avance", "avancer"],
+    "B" :["recule","reculer"]
     },
     
     "deplacementAngulaire":{
-    "gauche":["gauche"],
-    "droite":["droite"]
+    "L":["gauche"],
+    "R":["droite"]
 },
 
-    "stop":["stop","arrête","arrete"],
+    "S":["stop","arrête","arrete"],
 
     "commandesSpeciales":{
-        "zigzag":["droite","avance", "gauche", "avance" ,"droite", "avance"],
+        "zigzag":["R","F", "L", "F" ,"R", "F"],
         "demi tour": ["F(100)", "R(180)","F(100)"]
     
     },
