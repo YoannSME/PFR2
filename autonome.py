@@ -11,10 +11,11 @@ class Autonome :
     #arduino = serial.Serial('COM6', 9600)
     # arduino.write(etatPresent.encode()) pour envoyer l'état au robot via le BT
     
-    def __init__(self, etatPresent : str, obstacle : bool):
+    def __init__(self, etatPresent : str, obstacle : bool, objet : str):
         self.etatPresent = etatPresent
         self.obstacle = obstacle
-    
+        self.objet = objet
+        
     ############################ deplacement basique ############################
     def avancer(self, distance : float):
         self.etatPresent = f"F({distance})"
@@ -92,7 +93,7 @@ class Autonome :
         cptEstAtteint = False
 
         # Vérifier si un objet est détecté
-        objet_detecte = self.detecterObjet(self.obtenirImage())
+        objet_detecte = self.detecterObjet(self.obtenirImage()) # à modifier
         if objet_detecte == "balle":
             print("Objet trouvé : balle")
 
@@ -157,7 +158,7 @@ class Autonome :
             print("Erreur : le robot n'est pas orienté vers l'objet.")
             return
         
-        distance = distanceObjetRobot() # à modifier (fontction permettant de calculer la distance entre le robot et l'objet)
+        distance = self.distanceObjetRobot() # à modifier (fonction permettant de calculer la distance entre le robot et l'objet)
         print(f"Déplacement vers l'objet à une distance de {distance} cm.")
         self.avancer(distance)
         time.sleep(1)  # Simule le temps de déplacement
