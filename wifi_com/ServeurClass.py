@@ -27,12 +27,16 @@ class Server:
         # Définir la route pour envoyer un message
         self.app.add_url_rule('/take_picture', 'take_picture', self.take_picture)
         self.app.add_url_rule('/take_Lidar', 'take_Lidar', self.take_Lidar)
+        self.app.add_url_rule('/video_feed', 'video_feed', self.video_feed)
 
     def take_picture(self):
         return "Voici une photo"
     
     def take_Lidar(self):
         return "Voici un scan lidar"
+    
+    def video_feed(self):
+        return "Voici le flux vidéo"
 
     def run(self):
         """Démarre le serveur Flask"""
