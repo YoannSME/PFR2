@@ -1,0 +1,33 @@
+{
+    "deplacementLineaire":{
+    "F" : ["avance", "avancer"],
+    "B" :["recule","reculer"]
+    },
+    
+    "deplacementAngulaire":{
+    "L":["gauche"],
+    "R":["droite"]
+},
+
+    "S":["stop","arrête","arrete"],
+
+    "commandesSpeciales":{
+        "zigzag":["R(45)","F(50)", "L(90)", "F(50)" ,"R(90)", "F(50)"],
+        "demi tour": ["F(100)", "R(180)","F(100)"]
+    
+    },
+
+    "objets":{
+        "balle":["balle", "cercle"],
+        "cube":["cuble", "carré" ,"carre"]
+    },
+
+    "couleurs":{
+        "jaune":["jaune", "yellow"],
+        "orange":["orange","orange"],
+        "bleu":["bleu", "blue"]
+    },
+
+    "negations":["ne", "n", "non"]
+    
+}
