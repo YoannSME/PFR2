@@ -12,7 +12,7 @@
     "S":["stop","arrête","arrete"],
 
     "commandesSpeciales":{
-        "zigzag":["R","F", "L", "F" ,"R", "F"],
+        "zigzag":["R(45)","F(50)", "L(90)", "F(50)" ,"R(90)", "F(50)"],
         "demi tour": ["F(100)", "R(180)","F(100)"]
     
     },
