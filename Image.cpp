@@ -4,25 +4,34 @@ Image::Image()
 {
 }
 
-std::vector<Objet> Image::traiterSelonForme(cv::Mat &image, std::vector<Couleur> couleurs)
+std::vector<Objet> Image::traiterSelonForme(cv::Mat &image, std::vector<Couleur> couleurs,Forme forme)
 {
     std::vector<Objet> tousObj;
+    std::vector<Objet> objetsInterets;
     for (const Couleur &c : couleurs)
     {
         std::vector<Objet> objetsCouleur = traiterSelonCouleur(image, c);
         tousObj.insert(tousObj.end(), objetsCouleur.begin(), objetsCouleur.end());
     }
-
-    return tousObj;
+    for(const Objet &obj: tousObj){
+        if(obj.forme == forme){
+            objetsInterets.push_back(obj);
+        }
+    }
+    return objetsInterets;
 }
+
 
 std::vector<Objet> Image::traiterSelonCouleur(cv::Mat &image, Couleur couleur)
 {
     cv::Mat seuille, open, labels, stats, centroids;
 
+    //cv::GaussianBlur(image, image, cv::Size(5, 5), 0);
+
+
     cv::cvtColor(image, seuille, cv::COLOR_BGR2HSV);
     cv::inRange(seuille, couleur.getCouleurMin(), couleur.getCouleurMax(), seuille);
-    cv::morphologyEx(seuille, open, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(9, 9)));
+    cv::morphologyEx(seuille, open, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(13, 13)));
 
     int nb_objets = cv::connectedComponentsWithStats(open, labels, stats, centroids, 8, CV_32S);
     std::vector<Objet> objetsDetectes;
@@ -30,7 +39,7 @@ std::vector<Objet> Image::traiterSelonCouleur(cv::Mat &image, Couleur couleur)
     for (int i = 1; i < nb_objets; i++)
     {
         int area = stats.at<int>(i, cv::CC_STAT_AREA);
-        if (area >= 1000)
+        if (area >= 350)
         {
             int x = stats.at<int>(i, cv::CC_STAT_LEFT);
             int y = stats.at<int>(i, cv::CC_STAT_TOP);
@@ -79,8 +88,20 @@ std::vector<Objet> Image::traiterSelonCouleur(cv::Mat &image, Couleur couleur)
     return objetsDetectes;
 }
 
-std::pair<int, int> Image::calculerPosition(Objet& objet, const cv::Mat &image) {
+std::pair<int, int> Image::calculerDistanceCentre(Objet& objet, const cv::Mat &image) {
     int centreImX = image.cols / 2;
     int centreImY = image.rows / 2;
     return {centreImX -objet.cx, centreImY - objet.cy};
+}
+//Poser un coefficient => Si l'objet est trop loin => (Y élevé) il faut avancer d'une certaine distance
+
+std::pair<bool,std::pair<int,int>> Image::objetPresent(cv::Mat &image, Forme forme, Couleur couleur) {
+    std::vector<Couleur> couleurTraitee= {couleur};
+    std::vector<Objet> objets = traiterSelonForme(image, couleurTraitee,forme);
+    for (Objet &obj : objets) {
+        if (obj.forme == forme) {
+            return {true, calculerDistanceCentre(obj, image)};
+        }
+    }
+    return {false, {0, 0}};
 }

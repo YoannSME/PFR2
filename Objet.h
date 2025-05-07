@@ -15,7 +15,7 @@ public:
     int area;
     int x, y, w, h;
     double cx, cy;   // Centroïde (centre géométrique)
-    Forme forme;     // Optionnel, peut être mis à jour après analyse complémentaire
+    Forme forme;
     Couleur couleur;
     Objet(int area, int x, int y, int w, int h, double cx, double cy, Forme forme,Couleur couleur);
 

@@ -8,14 +8,12 @@
 // SEUILS DE DETECTION A ADAPTER UNE FOIS QU'ON AURA LES DONNES DE LA CAMEAR
 Couleur jaune("Jaune", cv::Scalar(13, 97, 67), cv::Scalar(42, 255, 255));
 Couleur bleu("Bleu", cv::Scalar(74, 56, 0), cv::Scalar(117, 255, 255));
-Couleur orange("Orange", cv::Scalar(2, 163, 64), cv::Scalar(13, 255, 255));
+Couleur orange("Orange", cv::Scalar(8, 120, 50), cv::Scalar(18, 255, 255));
+Couleur verte("Verte", cv::Scalar(32, 51, 51), cv::Scalar(77, 255, 255));
 
 int main(int argc, char **argv)
 {
     Image controleImage;
-    /*color bleu = creerCouleur(cv::Scalar(90, 50, 50), cv::Scalar(130, 255, 255));
-    color jaune = creerCouleur(cv::Scalar(15, 50, 50), cv::Scalar(40, 255, 255));
-    color orange = creerCouleur(cv::Scalar(10, 100, 100),cv::Scalar(20, 255, 255));*/
 
     cv::Mat frame;
     cv::VideoCapture cap;
@@ -26,14 +24,14 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    std::vector<Couleur> couleurs = {jaune, bleu, orange};
+    std::vector<Couleur> couleurs = {jaune, bleu, orange,verte};
     while (1)
     {
         cap >> frame;
         if (frame.empty())
             break;
 
-        std::vector<Objet> objets = controleImage.traiterSelonForme(frame, couleurs);
+        std::vector<Objet> objets = controleImage.traiterSelonForme(frame, couleurs,Forme::CARRE);
         for (size_t i = 0; i < objets.size(); i++)
         {
             Objet obj = objets[i];
@@ -55,20 +53,20 @@ int main(int argc, char **argv)
                         cv::Point(obj.x, obj.y + 100), cv::FONT_HERSHEY_SIMPLEX,
                         0.5, cv::Scalar(255, 255, 255), 1);
 
-            std::pair<int, int> pos = controleImage.calculerPosition(obj, frame);
+            std::pair<int, int> pos = controleImage.calculerDistanceCentre(obj, frame);
 
             std::string texte = "(" + std::to_string(pos.first) + ", " + std::to_string(pos.second) + ")";
 
             cv::putText(frame, texte,
-                        cv::Point(obj.x, obj.y - 50), // Position du texte (juste au-dessus de l'objet)
+                        cv::Point(obj.x, obj.y - 50),
                         cv::FONT_HERSHEY_SIMPLEX, 0.5,
                         cv::Scalar(255, 255, 255), 1);
         }
 
-        cv::Mat hsvSH;
-        cv::cvtColor(frame, hsvSH, cv::COLOR_BGR2HSV);
+        cv::Mat seuille;
+        cv::cvtColor(frame, seuille, cv::COLOR_BGR2HSV);
 
-        cv::imshow("flux vidéo", hsvSH);
+        cv::imshow("flux vidéo", seuille);
         if (cv::waitKey(30) == 27)
         { // TOUCHE ESC
             break;

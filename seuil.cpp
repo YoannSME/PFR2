@@ -8,8 +8,8 @@ int main() {
         return -1;
     }
 
-    int h_min = 5, s_min = 50, v_min = 50;
-    int h_max = 20, s_max = 255, v_max = 200;
+    int h_min = 2, s_min = 163, v_min = 64;
+    int h_max = 13, s_max = 255, v_max = 255;
 
     cv::namedWindow("Trackbars", cv::WINDOW_AUTOSIZE);
     cv::createTrackbar("H Min", "Trackbars", &h_min, 179);
