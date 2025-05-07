@@ -1,3 +1,0 @@
-tourne
-droite
-gauche
