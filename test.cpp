@@ -1,5 +1,5 @@
 #include "Objet.h"
-#include "Image.h"
+#include "GestionTraitementImage.h"
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <iostream>
@@ -7,13 +7,13 @@
 
 // SEUILS DE DETECTION A ADAPTER UNE FOIS QU'ON AURA LES DONNES DE LA CAMEAR
 Couleur jaune("Jaune", cv::Scalar(13, 97, 67), cv::Scalar(42, 255, 255));
-Couleur bleu("Bleu", cv::Scalar(74, 56, 0), cv::Scalar(117, 255, 255));
-Couleur orange("Orange", cv::Scalar(8, 120, 50), cv::Scalar(18, 255, 255));
-Couleur verte("Verte", cv::Scalar(32, 51, 51), cv::Scalar(77, 255, 255));
+Couleur bleu("Bleu", cv::Scalar(96, 105, 70), cv::Scalar(114, 231, 186));
+Couleur orange("Orange", cv::Scalar(2, 113, 27), cv::Scalar(16, 255, 148));
+Couleur vert("Vert", cv::Scalar(40, 54, 57), cv::Scalar(70, 255, 209));
 
 int main(int argc, char **argv)
 {
-    Image controleImage;
+    GestionTraitementImage controleImage;
 
     cv::Mat frame;
     cv::VideoCapture cap;
@@ -24,14 +24,18 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    std::vector<Couleur> couleurs = {jaune, bleu, orange,verte};
+    //std::vector<Couleur> couleurs = {jaune, bleu, orange,vert};
     while (1)
     {
         cap >> frame;
         if (frame.empty())
             break;
 
-        std::vector<Objet> objets = controleImage.traiterSelonForme(frame, couleurs,Forme::CARRE);
+        std::vector<Objet> objets = controleImage.chercherObjetAvecCouleurF(frame,"vert","balle");
+        std::cout<<"Nombre d'objets trouvés : " << objets.size() << std::endl;
+        //Couleur couleurRecherchee = controleImage.getCouleurAssocie("vert");
+        //std::vector<Objet> objets = controleImage.traiterSelonCouleur(frame,couleurRecherchee);
+        //std::vector<Objet> objets = controleImage.traiterSelonForme(frame,Forme::BALLE);
         for (size_t i = 0; i < objets.size(); i++)
         {
             Objet obj = objets[i];
@@ -49,7 +53,7 @@ int main(int argc, char **argv)
                         cv::Point(obj.x, obj.y + 20), cv::FONT_HERSHEY_SIMPLEX,
                         0.5, cv::Scalar(255, 255, 255), 1);
 
-            cv::putText(frame, (obj.getForme(obj.forme)),
+            cv::putText(frame, (obj.getNomAssociee(obj.forme)),
                         cv::Point(obj.x, obj.y + 100), cv::FONT_HERSHEY_SIMPLEX,
                         0.5, cv::Scalar(255, 255, 255), 1);
 
@@ -66,7 +70,7 @@ int main(int argc, char **argv)
         cv::Mat seuille;
         cv::cvtColor(frame, seuille, cv::COLOR_BGR2HSV);
 
-        cv::imshow("flux vidéo", seuille);
+        cv::imshow("flux vidéo", frame);
         if (cv::waitKey(30) == 27)
         { // TOUCHE ESC
             break;

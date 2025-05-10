@@ -6,7 +6,7 @@ Couleur::Couleur(std::string nom,cv::Scalar couleurMin, cv::Scalar couleurMax)
 Couleur::~Couleur() {}
 
 
-std::string Couleur::getNom(){
+std::string Couleur::getNom() const {
     return nom;
 }
 const cv::Scalar& Couleur::getCouleurMin() const {

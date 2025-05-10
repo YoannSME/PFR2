@@ -15,7 +15,7 @@ private:
 public:
     Couleur(std::string nom,cv::Scalar couleurMin, cv::Scalar couleurMax);
     ~Couleur();
-    std::string getNom();
+    std::string getNom() const;
     const cv::Scalar& getCouleurMin() const;
     const cv::Scalar& getCouleurMax() const;
 

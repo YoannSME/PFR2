@@ -1,0 +1,41 @@
+{
+    "objet1": {
+        "aire": 4411,
+        "couleur": "bleu",
+        "cx": 768.6259351620947,
+        "cy": 305.81772840625706,
+        "distX": 128,
+        "distY": -54,
+        "forme": "balle",
+        "hauteur": 77,
+        "largeur": 81,
+        "x": 725,
+        "y": 264
+    },
+    "objet2": {
+        "aire": 1224,
+        "couleur": "orange",
+        "cx": 698.2483660130719,
+        "cy": 349.06535947712416,
+        "distX": 58,
+        "distY": -10,
+        "forme": "balle",
+        "hauteur": 44,
+        "largeur": 41,
+        "x": 679,
+        "y": 327
+    },
+    "objet3": {
+        "aire": 724,
+        "couleur": "vert",
+        "cx": 655.2720994475138,
+        "cy": 661.560773480663,
+        "distX": 15,
+        "distY": 301,
+        "forme": "balle",
+        "hauteur": 27,
+        "largeur": 37,
+        "x": 639,
+        "y": 649
+    }
+}
