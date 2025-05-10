@@ -1,41 +1,28 @@
 {
     "objet1": {
-        "aire": 4411,
-        "couleur": "bleu",
-        "cx": 768.6259351620947,
-        "cy": 305.81772840625706,
-        "distX": 128,
-        "distY": -54,
+        "aire": 3563,
+        "couleur": "orange",
+        "cx": 370.0659556553466,
+        "cy": 569.1164748807184,
+        "distX": -269,
+        "distY": 209,
         "forme": "balle",
-        "hauteur": 77,
-        "largeur": 81,
-        "x": 725,
-        "y": 264
+        "hauteur": 68,
+        "largeur": 76,
+        "x": 330,
+        "y": 539
     },
     "objet2": {
-        "aire": 1224,
-        "couleur": "orange",
-        "cx": 698.2483660130719,
-        "cy": 349.06535947712416,
-        "distX": 58,
-        "distY": -10,
-        "forme": "balle",
-        "hauteur": 44,
-        "largeur": 41,
-        "x": 679,
-        "y": 327
-    },
-    "objet3": {
-        "aire": 724,
+        "aire": 5914,
         "couleur": "vert",
-        "cx": 655.2720994475138,
-        "cy": 661.560773480663,
-        "distX": 15,
-        "distY": 301,
+        "cx": 254.79083530605342,
+        "cy": 592.5546161650321,
+        "distX": -385,
+        "distY": 232,
         "forme": "balle",
-        "hauteur": 27,
-        "largeur": 37,
-        "x": 639,
-        "y": 649
+        "hauteur": 74,
+        "largeur": 86,
+        "x": 212,
+        "y": 555
     }
 }

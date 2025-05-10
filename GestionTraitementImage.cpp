@@ -140,7 +140,7 @@ std::vector<Objet> GestionTraitementImage::traiterSelonCouleur(cv::Mat &image, C
                 }
                 else
                 {
-                    forme = Forme::INCONNUE;
+                    continue; // Ignore les objets qui ne correspondent pas aux formes recherchées;
                 }
             }
 
@@ -191,7 +191,33 @@ std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleur(const std::s
     return objets;
 }
 
-std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleurF(cv::Mat &image, const std::string &couleur, const std::string &forme)
+std::vector<Objet> GestionTraitementImage::chercherForme(const std::string &path,const std::string &forme)
+{
+    cv::Mat image = cv::imread(path);
+    if (image.empty())
+    {
+        std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
+        exit(2);
+    }
+    Forme formeRecherchee = getFormeAssocie(forme);
+    return traiterSelonForme(image, formeRecherchee);
+}
+
+std::vector<Objet> GestionTraitementImage::chercherCouleur(const std::string &path,const std::string &couleur)
+{
+    cv::Mat image = cv::imread(path);
+    if (image.empty())
+    {
+        std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
+        exit(2);
+    }
+    Couleur couleurAssociee = getCouleurAssocie(couleur);
+    return traiterSelonCouleur(image, couleurAssociee);
+}
+
+
+
+/*std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleurVIDEO(cv::Mat &image, const std::string &couleur, const std::string &forme)
 {
     Couleur couleurRecherchee = getCouleurAssocie(couleur);
     Forme formeRecherchee = getFormeAssocie(forme);
@@ -204,9 +230,8 @@ std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleurF(cv::Mat &im
             objetsInterets.push_back(obj);
         }
     }
-
     return objetsInterets;
-}
+}*/
 
 void GestionTraitementImage::sauvegarderResultats(const std::vector<Objet> &objets)
 {

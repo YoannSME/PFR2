@@ -4,7 +4,17 @@
 
 int main(int argc, char** argv)
 {
-    cv::VideoCapture cap(0); // Ouvre la caméra par défaut
+    // => REALISER INTERFACE PYTHON => CHERCHER BALLE => SCRIPT QUI APPELLE chercherObjet..
+    // CHERCHER COULEUR => chercherCouleur
+    // Chercher une balle de couleur => chercherObjetAvecCouleur
+    /*ex : int main(int argc,char** argv){
+    argv[1] sera le chemin vers l'iamge
+        switch(atoi(argv[2])){
+        si 1 : chercherObjet
+        si2...
+        si3 ...}
+    }*/
+    cv::VideoCapture cap(0);
     if (!cap.isOpened()) {
         std::cerr << "Erreur : impossible d’ouvrir la caméra" << std::endl;
         return -1;
@@ -37,7 +47,7 @@ int main(int argc, char** argv)
             
             
             //std::vector<Objet> objets = controleImage.chercherObjetAvecCouleur(path, "vert", "balle");
-            std::vector<Objet> objets = controleImage.traiterSelonForme(frame, Forme::BALLE);
+            std::vector<Objet> objets = controleImage.chercherForme(path, "balle");
             controleImage.sauvegarderResultats(objets);
             for(Objet &obj : objets){
                 cv::rectangle(frame, cv::Rect(obj.x, obj.y, obj.w, obj.h),cv::Scalar(255, 255, 255), 2);

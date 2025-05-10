@@ -24,7 +24,9 @@ public:
     std::vector<Objet> traiterSelonForme(cv::Mat &image, Forme forme);
     std::vector<Objet> traiterImageAll(cv::Mat &image);
     std::vector<Objet> chercherObjetAvecCouleur(const std::string &path, const std::string &couleur, const std::string &forme);
-    std::vector<Objet> chercherObjetAvecCouleurF(cv::Mat &image, const std::string &couleur, const std::string &forme);
+    std::vector<Objet> chercherCouleur(const std::string &path,const std::string &couleur);
+    std::vector<Objet> chercherForme(const std::string &path,const std::string &forme);
+    //std::vector<Objet> chercherObjetAvecCouleurF(cv::Mat &image, const std::string &couleur, const std::string &forme);
  
     void sauvegarderResultats(const std::vector<Objet>& objets);
 
