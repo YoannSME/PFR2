@@ -36,7 +36,12 @@ class Robot(Server):
             # Retourner l'image pivotée
             return send_file(image_path, mimetype='image/jpg')
         else:
-            return abort(404, description="Image non trouvée")       
+            return abort(404, description="Image non trouvée")   
+            
+    def save_picture(self):
+        image_path = "/home/gp3/Desktop/Images/imageRequete.jpg"
+        self.picam2.capture_file(image_path) #Prendre une photo et l'enregistrer
+        return image_path
 
     def generate_frames(self):
         while True:
