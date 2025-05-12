@@ -75,7 +75,7 @@ void loop() {
   if(ModeAutom){
     if(Serial1.available()) {
       String commande = Serial1.readStringUntil('\n');
-      Serial.println(commande);
+     // Serial.println(commande);
       if (commande == "Y") ModeAutom = false;
     }
     autonome();
