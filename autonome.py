@@ -81,6 +81,10 @@ class Autonome :
         distance = 100
         return distance  # Simule une distance de 100 cm entre le robot et l'objet
     
+    def getCouleurObjet(self, image)->str:
+        return "blue"
+    
+    
     ############################ fin de fonction à changer et remplacer par les bonnes ##########################
     
     ############################ recherche d'objects (balles, cubes, etc) via camera ############################
@@ -137,7 +141,7 @@ class Autonome :
                 self.droite(angle)
             elif angle < 0:
                 self.gauche(abs(angle))
-            elif angle == 0:
+            elif angle == 0: # valeur à changer potentiellement
                 print("Robot déjà orienté vers l'objet.")
                 estOriente = True
             
@@ -146,25 +150,40 @@ class Autonome :
             print("Aucun objet détecté pour l'orientation.")
             estOriente = False
         return estOriente
-       
     
     
-    def allerVersObjet(self):
+    def allerVersObjet(self, couleur : str):
         """
-        Simule le déplacement vers un objet détecté.
+        Simule le déplacement vers un objet détecté avec ou sans couleur.
         """
         image = self.obtenirImage() # à modifier
-        if not self.orienterVersObjet(image):
-            print("Erreur : le robot n'est pas orienté vers l'objet.")
+        distance = self.distanceObjetRobot() # à modifier (fonction permettant de calculer la distance entre le robot et l'objet)
+        couleurObjet = getCouleurObjet(image) # fonction a faire
+        
+        if couleurObjet == couleur:
+            if self.orienterVersObjet(image):
+                print("Réorientation en cours.")
+            
+            print(f"Déplacement vers l'objet à une distance de {distance} cm.")
+            self.avancer(distance)
+            time.sleep(1)  # Simule le temps de déplacement
+            self.arreter()
+        
+        elif couleurObjet != couleur :
             return
         
-        distance = self.distanceObjetRobot() # à modifier (fonction permettant de calculer la distance entre le robot et l'objet)
-        print(f"Déplacement vers l'objet à une distance de {distance} cm.")
-        self.avancer(distance)
-        time.sleep(1)  # Simule le temps de déplacement
-        self.arreter()
+        else:
+            if self.orienterVersObjet(image):
+                print("Réorientation en cours.")
             
-
+            
+            print(f"Déplacement vers l'objet à une distance de {distance} cm.")
+            self.avancer(distance)
+            time.sleep(1)  # Simule le temps de déplacement
+            self.arreter()
+            
+    
+    
 def main():
     #
         pygame.init()
