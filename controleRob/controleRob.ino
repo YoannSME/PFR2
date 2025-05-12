@@ -57,7 +57,7 @@ void setupCapteurs(){
 // --------------------------------------------------------------------
 
 void loop() {
-    static char ligne[1024];
+  static char ligne[1024];
   static int index = 0;
   
   if (Serial1.available()) {
@@ -98,6 +98,9 @@ void traiter_commande(char* commande) {
         etatSysteme = 'L';
         tournerGauche(parametre);
       }
+    }
+    else if (strcmp(fonction, "A") == 0) {
+      autonome(commande);
     }
   }
   else if (lu == 1) {
@@ -316,3 +319,84 @@ void stopMoteurs() {
   moteurDerriereGauche.run(RELEASE);
 }
 // ------------------------- Fin gestion des moteurs --------------------------
+
+// --------------------------------- Autonome ---------------------------------
+
+// --- Configuration des États ---
+enum Etat {
+  ETAT_ATTENTE,
+  ETAT_AVANCER,
+  ETAT_RECULER,
+  ETAT_GAUCHE,
+  ETAT_DROITE};
+
+Etat etatPresent = ETAT_ATTENTE;
+
+
+// stopObstacle(const int trigPin, const int echoPin, int seuilDetection)
+
+// trigPinGauche
+// echoPinGauche
+
+// trigPinAvant
+// echoPinAvant
+
+// trigPinDroite
+// echoPinDroite
+
+
+void autonome(char* commande){
+  while(commande == 'A'){
+    
+    switch(etatPresent){
+      case ETAT_ATTENTE:
+        if(stopObstacle(trigPinAvant, echoPinGauche, seuilDetection)){
+          etatPresent = ETAT_AVANCER;
+        }
+        else if(stopObstacle(trigPinAvant, echoPinAvant, seuilDetection) && 
+          stopObstacle(trigPinDroite, echoPinDroite, seuilDetection) && 
+          !stopObstacle(trigPinGauche, echoPinGauche, seuilDetection))
+        {
+          etatPresent = ETAT_GAUCHE;
+        }
+        else if(stopObstacle(trigPinAvant, echoPinAvant, seuilDetection) && 
+          !stopObstacle(trigPinDroite, echoPinDroite, seuilDetection) && 
+          stopObstacle(trigPinGauche, echoPinGauche, seuilDetection))
+        {
+          etatPresent = ETAT_DROITE;
+        }
+        else if(stopObstacle(trigPinAvant, echoPinAvant, seuilDetection) && 
+          stopObstacle(trigPinDroite, echoPinDroite, seuilDetection) && 
+          stopObstacle(trigPinGauche, echoPinGauche, seuilDetection))
+        {
+          etatPresent = ETAT_RECULER;
+        }
+        break;
+
+      case ETAT_AVANCER:
+        etatPresent = ETAT_ATTENTE;
+        break;
+      
+      case ETAT_GAUCHE:
+        etatPresent = ETAT_ATTENTE;
+        break;
+      
+      case ETAT_DROITE:
+        etatPresent = ETAT_ATTENTE;
+        break;
+      
+      case ETAT_RECULER:
+        etatPresent = ETAT_ATTENTE;
+        break;
+
+      default:
+        ETAT_ATTENTE;
+        break;
+        }
+    }
+  }
+}
+
+
+
+
