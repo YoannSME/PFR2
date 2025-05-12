@@ -28,6 +28,8 @@ class Server:
         self.app.add_url_rule('/take_picture', 'take_picture', self.take_picture)
         self.app.add_url_rule('/take_Lidar', 'take_Lidar', self.take_Lidar)
         self.app.add_url_rule('/video_feed', 'video_feed', self.video_feed)
+        self.app.add_url_rule('/save_picture', 'save_picture', self.save_picture)
+
 
     def take_picture(self):
         return "Voici une photo"
@@ -37,6 +39,9 @@ class Server:
     
     def video_feed(self):
         return "Voici le flux vidéo"
+    
+    def save_picture(self):
+        return "Voici le chemin de sauvegarde de l'image a traiter"
 
     def run(self):
         """Démarre le serveur Flask"""
