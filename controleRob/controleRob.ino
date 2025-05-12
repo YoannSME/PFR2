@@ -1,10 +1,12 @@
+// -------------------- Bibliotheques ------------------------
+
 #include <AFMotor.h>
 #include <string.h>
 
 // ---------------- Définition des moteurs --------------------
-AF_DCMotor moteurAvantGauche(4); 
-AF_DCMotor moteurAvantDroit(3); 
-AF_DCMotor moteurDerriereDroite(2); 
+AF_DCMotor moteurAvantGauche(4);
+AF_DCMotor moteurAvantDroit(3);
+AF_DCMotor moteurDerriereDroite(2);
 AF_DCMotor moteurDerriereGauche(1);
 // ------------------------------------------------------------
 
@@ -17,32 +19,43 @@ const int trigPinDroite = 38;
 const int echoPinDroite = 39;
 // ------------------------------------------------------------
 
-// --------------------- Initialisation -----------------------
-static unsigned long timeStamp = 0;
-char etatSysteme = 'S';
-bool interruption = false;
-const int seuilDetection = 20;
-// -------------------------------------------------------------
+const int vitesse = 200;
+const int seuilDetection = 30;
 
+// ------------------------ Autom ----------------------------
+bool ModeAutom = false;
+char etatSysteme = 'S';
+// ------------------------------------------------------------
+
+// ---------------------- Temporisateur -----------------------
+unsigned long tpsDepart = 0;
+unsigned long tpsCible = 0;
+// ------------------------------------------------------------
+
+bool interruption = false;
+bool enCoursAvance = false;
+
+// -------------------------- setUps ---------------------------
 void setup() {
   Serial.begin(9600);
   setupBluetooth();
   setupMoteur();
   setupCapteurs();
 }
-// ---------------------- Creation des setup() -----------------------
-void setupBluetooth(){
-  while (!Serial); // Attendre que la connexion série soit prête
-  Serial.println("Connexion au bluetooth...");
+
+void setupBluetooth() {
+  while (!Serial);  // Attendre que la connexion série soit prête
+  //Serial.println("Entrez les commandes sous forme : avancer(100) reculer(50) tourner(90)");
+
   // Communication série pour le module Bluetooth (port série 1 ou un autre port)
-  Serial1.begin(9600); 
+  Serial1.begin(9600);
 }
 
-void setupMoteur(){
-  Serial.println("Initialisation des moteurs...");
+void setupMoteur() {
+  //Serial.println("Initialisation des moteurs...");
   // Réglage de la vitesse des moteurs
-  setVitesse(200);
-  // Arrêt initial des moteurs 
+  setVitesse(vitesse);
+  // Arrêt initial des moteurs
   stopMoteurs();
 }
 
@@ -54,82 +67,128 @@ void setupCapteurs(){
   pinMode(trigPinDroite, OUTPUT);
   pinMode(echoPinDroite, INPUT);
 }
-// --------------------------------------------------------------------
+// -------------------------------------------------------------
 
 void loop() {
-  static char ligne[1024];
-  static int index = 0;
-  
-  if (Serial1.available()) {
-    char commande = Serial1.read();
-    interruption = commande == 'S';
-    if (commande != '\n' && index < sizeof(ligne) - 1) {
-      ligne[index++] = commande;
-    } else if (commande == '\n' || index >= sizeof(ligne) - 1) {
-      ligne[index] = '\0';
-      traiter_commande(ligne);  //lancerCommande
-      index = 0;
+  static int indexI = 0;
+  static int indexC = 0;
+  if(ModeAutom){
+    if(Serial1.available()) {
+      String commande = Serial1.readStringUntil('\n');
+      Serial.println(commande);
+      if (commande == "Y") ModeAutom = false;
+    }
+    autonome();
+  }
+  else{
+    if(Serial1.available()) {//ça remplit le tableau tant qu'on reçoit quelque chose par bluetooth
+      String commande = Serial1.readStringUntil('\n');
+      commande.trim();
+      if(commande.length()==1){
+        traiter_commande(commande.c_str());
+      }
+      else{
+        char buffer[commande.length() + 1];
+        commande.toCharArray(buffer, sizeof(buffer));
+        // Serial.println("COmmande :");
+        // Serial.println(commande);
+        char* actions = strtok(buffer," ");
+        while(actions != NULL){
+          // Serial.print("Commande courante - ");
+          // Serial.println(actions);
+          traiter_commande(actions);
+          actions = strtok(NULL," ");
+        }
+      }
     }
   }
 }
 
 // ----------------------  gerer les commandes vocales ou manette -----------------------
 void traiter_commande(char* commande) {
+  // Serial.print(commande);
   char fonction[50];
-  int parametre;
+  int parametre = 0;
   int lu = sscanf(commande, "%49[^()]%*c%d", fonction, &parametre);  // essaie de lire fonction et paramètre
+  //Serial.println(commande);
+  //Serial.println(parametre);
   if (lu == 2) {
     if (strcmp(fonction, "F") == 0) {
-      etatSysteme = 'F';
-      if (stopObstacle(trigPinAvant, echoPinAvant, seuilDetection))
+      if (stopObstacle(trigPinAvant, echoPinAvant, seuilDetection)){
         stopMoteurs();
-      else
+      }
+      else{
         avancer(parametre);
+      }
     } else if (strcmp(fonction, "B") == 0) {
-      etatSysteme = 'B';
       reculer(parametre);
     } else if (strcmp(fonction, "R") == 0) {
-      if (!stopObstacle(trigPinDroite, echoPinDroite, seuilDetection)) {
-        etatSysteme = 'R';
         tournerDroite(parametre);
-      }
     } else if (strcmp(fonction, "L") == 0) {
-      if (!stopObstacle(trigPinGauche, echoPinGauche, seuilDetection)) {
-        etatSysteme = 'L';
         tournerGauche(parametre);
-      }
-    }
-    else if (strcmp(fonction, "A") == 0) {
-      autonome(commande);
     }
   }
   else if (lu == 1) {
-    if (strcmp(fonction, "F") == 0) {
-      etatSysteme = 'F';
-      if (stopObstacle(trigPinAvant, echoPinAvant, seuilDetection))
+    if (strcmp(fonction, "Z") == 0){
+      ModeAutom = true;
+    }
+    else if (strcmp(fonction, "F") == 0) {
+      if (stopObstacle(trigPinAvant, echoPinAvant, seuilDetection)){
+        setVitesse(vitesse);
         stopMoteurs();
-      else
-        avancer();  // <- appel sans paramètre
+      }
+      else{
+        setVitesse(vitesse);
+        avancer();
+      }
     } else if (strcmp(fonction, "B") == 0) {
-      etatSysteme = 'B';
-      reculer();
+        setVitesse(vitesse);
+        reculer();
     } else if (strcmp(fonction, "R") == 0) {
-      if (!stopObstacle(trigPinDroite, echoPinDroite, seuilDetection)) {
-        etatSysteme = 'R';
+        setVitesse(vitesse);
         tournerDroite();
-      }
+      
     } else if (strcmp(fonction, "L") == 0) {
-      if (!stopObstacle(trigPinGauche, echoPinGauche, seuilDetection)) {
-        etatSysteme = 'L';
-        tournerGauche();
-      }
+      setVitesse(vitesse);
+      tournerGauche();
+
+    } else if (strcmp(fonction, "P") == 0) { //Diagoale avant droite ***
+        moteurAvantGauche.setSpeed(0);
+        moteurAvantDroit.setSpeed(255);
+        moteurDerriereDroite.setSpeed(255);
+        moteurDerriereGauche.setSpeed(0);
+        avancer();
+      
+    } else if (strcmp(fonction, "N") == 0) { //Diagoale arriere droite ***
+        moteurAvantGauche.setSpeed(0);
+        moteurAvantDroit.setSpeed(255);
+        moteurDerriereDroite.setSpeed(255);
+        moteurDerriereGauche.setSpeed(0);
+        reculer();
+    
+    }else if (strcmp(fonction, "A") == 0) { //Diagoale avant gauche ***
+        moteurAvantGauche.setSpeed(255);
+        moteurAvantDroit.setSpeed(0);
+        moteurDerriereDroite.setSpeed(0);
+        moteurDerriereGauche.setSpeed(255);
+        avancer();
+
+    }else if (strcmp(fonction, "W") == 0) { //Diagoale arriere gauche ***
+        moteurAvantGauche.setSpeed(255);
+        moteurAvantDroit.setSpeed(0);
+        moteurDerriereDroite.setSpeed(0);
+        moteurDerriereGauche.setSpeed(255);
+        reculer();
+
     } else if (strcmp(fonction, "S") == 0) {
-      etatSysteme = 'S';
+      setVitesse(vitesse);
       stopMoteurs();
     }
   }
   else {
-    Serial.println("Commande invalide !");
+    //Serial.println("Commande invalide !");
+    setVitesse(vitesse);
+    stopMoteurs();
   }
 }
 
@@ -144,18 +203,17 @@ void traiter_ligne_commandes(char* ligne) {
 }
 // ------------------------------ Fin traiter commande --------------------------------
 
-bool checkArretUrgence(char commande){
+bool checkArretUrgence(char commande) {
   bool arretUrgence = false;
-  if(commande == 'A'){
+  if (commande == 'A') {
     arretUrgence = true;
   }
   return arretUrgence;
 }
 
 // Fonction pour interrompre l'exécution si un obstacle est trop proche
-bool stopObstacle(const int trigPin, const int echoPin, int seuilDetection) {// Seuil de détection en cm
+bool stopObstacle(const int trigPin, const int echoPin, int seuilDetection) {  // Seuil de détection en cm
   int distance = getDistance(trigPin, echoPin);
-
   // Si un obstacle est détecté devant ou sur les côtés, on stoppe
   return (distance < seuilDetection);
 }
@@ -167,18 +225,17 @@ long getDistance(int trigPin, int echoPin) {
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  
+
   long duration = pulseIn(echoPin, HIGH, 30000);
   return (duration > 0) ? (duration * 0.034 / 2) : 400;
 }
 
 // ------------------ Convertion des distances/angles en temps ------------------
+
 float conversionDistTemps(float distance){ //distance en cm
-  int duree = (distance / 80)*1000 ; // Temps en millisecondes. 
-  //80 represente la vitesse en cm/s du robot lorsque setVitesse est à 2OO.
+  int duree = (distance / 80)*1000 ; // Temps en millisecondes. 82 represente la vitesse du robot lorsque setVitesse est à 2OO.
   return duree;
 }
-
 float conversionAngleTemps(float angle){
   int duree = (angle * 4720) / 360 ;
   return duree;
@@ -186,6 +243,21 @@ float conversionAngleTemps(float angle){
 // ------------------------------------------------------------------------------
 
 // ---------------------------- Gestion des moteurs -----------------------------
+
+void setVitesse(int vitesse) {
+  moteurAvantGauche.setSpeed(vitesse);
+  moteurAvantDroit.setSpeed(vitesse);
+  moteurDerriereDroite.setSpeed(vitesse);
+  moteurDerriereGauche.setSpeed(vitesse);
+}
+
+void stopMoteurs() {
+  moteurAvantGauche.run(RELEASE);
+  moteurAvantDroit.run(RELEASE);
+  moteurDerriereDroite.run(RELEASE);
+  moteurDerriereGauche.run(RELEASE);
+}
+
 void reculer() {
   moteurAvantGauche.run(FORWARD);
   moteurAvantDroit.run(FORWARD);
@@ -214,109 +286,44 @@ void tournerGauche() {
   moteurDerriereGauche.run(FORWARD);
 }
 
-void reculer(float distance) {
-
-  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
-  if((timeStamp<=0) && (etatSysteme == 'S')){
-    timeStamp = millis() + conversionDistTemps(distance);
-    etatSysteme = 'B';
-  }
-
-  if ((timeStamp > 0) && (etatSysteme == 'B')){
-    // Activation des moteurs en avant
-    moteurAvantGauche.run(FORWARD);
-    moteurAvantDroit.run(FORWARD);
-    moteurDerriereDroite.run(FORWARD);
-    moteurDerriereGauche.run(FORWARD);
-    
-    //Si le temps d'execution correspond au temps de parcours, on arrête
-    if(millis() >= timeStamp){
-      stopMoteurs();
-      timeStamp = 0;
-      etatSysteme = 'S';
-    }
-  }
-}
-
+// Définir les fonctions de commandes
 void avancer(float distance) {
-  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
-  if((timeStamp<=0) && (etatSysteme == 'S')){
-    timeStamp = millis() + conversionDistTemps(distance);
-    etatSysteme = 'F';
-  }
-
-  if ((timeStamp > 0) && (etatSysteme == 'F')){
-    // Activation des moteurs en arrière
-    moteurAvantGauche.run(BACKWARD);
-    moteurAvantDroit.run(BACKWARD);
-    moteurDerriereDroite.run(BACKWARD);
-    moteurDerriereGauche.run(BACKWARD);
-    
-    //Si le temps d'execution correspond au temps de parcours, on arrête
-    if(millis() >= timeStamp){
-      stopMoteurs();
-      timeStamp = 0;
-      etatSysteme = 'S';
+  unsigned long duree = conversionDistTemps(distance);
+  tpsDepart = millis();
+  tpsCible = tpsDepart+duree;
+  while(millis()<tpsCible){
+    if(!stopObstacle(trigPinAvant, echoPinAvant, seuilDetection)){
+      avancer();
     }
   }
 }
+
+void reculer(float distance) {
+  unsigned long duree = conversionDistTemps(distance);
+  tpsDepart = millis();
+  tpsCible = tpsDepart+duree;
+  while(millis()<tpsCible){
+    reculer();
+  }
+}
+
 
 void tournerDroite(float angle) {
-  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
-  if((timeStamp<=0) && (etatSysteme == 'S')){
-    timeStamp = millis() + conversionAngleTemps(angle);
-    etatSysteme = 'R';
-  }
-  if ((timeStamp >= 0) && (etatSysteme == 'R')){
-    moteurAvantGauche.run(BACKWARD);
-    moteurDerriereGauche.run(BACKWARD);
-    moteurAvantDroit.run(FORWARD);
-    moteurDerriereDroite.run(FORWARD);
-
-    //Si le temps d'execution correspond au temps de parcours, on arrête
-    if(millis() >= timeStamp){
-      stopMoteurs();
-      timeStamp = 0;
-      etatSysteme = 'S';
-    }
+  unsigned long duree = conversionAngleTemps(angle);
+  tpsDepart = millis();
+  tpsCible = tpsDepart+duree;
+  while(millis()<tpsCible){
+    tournerDroite();
   }
 }
 
-void tournerGauche(float angle) {
-  //Si aucune autre fonction n'est en cours, on définit le temps correspondant au parcours effectué
-  if((timeStamp<=0) && (etatSysteme == 'S')){
-    timeStamp = millis() + conversionAngleTemps(angle);
-    etatSysteme = 'L';
+void tournerGauche(float angle){
+  unsigned long duree = conversionAngleTemps(angle);
+  tpsDepart = millis();
+  tpsCible = tpsDepart+duree;
+  while(millis()<tpsCible){
+    tournerGauche();
   }
-  if ((timeStamp >= 0) && (etatSysteme == 'L')){
-    moteurAvantGauche.run(FORWARD);
-    moteurDerriereGauche.run(FORWARD);
-    moteurAvantDroit.run(BACKWARD);
-    moteurDerriereDroite.run(BACKWARD);
-
-    //Si le temps d'execution correspond au temps de parcours, on arrête
-    if(millis() >= timeStamp){
-      stopMoteurs();
-      timeStamp = 0;
-      etatSysteme = 'S';
-    }
-  }
-}
-
-// Fonction pour régler la vitesse des moteurs
-void setVitesse(int vitesse) {
-  moteurAvantGauche.setSpeed(vitesse);
-  moteurAvantDroit.setSpeed(vitesse);
-  moteurDerriereDroite.setSpeed(vitesse);
-  moteurDerriereGauche.setSpeed(vitesse);
-}
-
-// Fonction pour arrêter les moteurs
-void stopMoteurs() {
-  moteurAvantGauche.run(RELEASE);
-  moteurAvantDroit.run(RELEASE);
-  moteurDerriereDroite.run(RELEASE);
-  moteurDerriereGauche.run(RELEASE);
 }
 // ------------------------- Fin gestion des moteurs --------------------------
 
@@ -332,25 +339,13 @@ enum Etat {
 
 Etat etatPresent = ETAT_ATTENTE;
 
-
-// stopObstacle(const int trigPin, const int echoPin, int seuilDetection)
-
-// trigPinGauche
-// echoPinGauche
-
-// trigPinAvant
-// echoPinAvant
-
-// trigPinDroite
-// echoPinDroite
-
-
-void autonome(char* commande){
-  while(commande == 'A'){
-    
+void autonome(){
+  setVitesse(200);
+  if(ModeAutom && !interruption){
+    // --- Transition d’état ---
     switch(etatPresent){
       case ETAT_ATTENTE:
-        if(stopObstacle(trigPinAvant, echoPinGauche, seuilDetection)){
+        if(!stopObstacle(trigPinAvant, echoPinAvant, seuilDetection*1.5)){
           etatPresent = ETAT_AVANCER;
         }
         else if(stopObstacle(trigPinAvant, echoPinAvant, seuilDetection) && 
@@ -360,8 +355,7 @@ void autonome(char* commande){
           etatPresent = ETAT_GAUCHE;
         }
         else if(stopObstacle(trigPinAvant, echoPinAvant, seuilDetection) && 
-          !stopObstacle(trigPinDroite, echoPinDroite, seuilDetection) && 
-          stopObstacle(trigPinGauche, echoPinGauche, seuilDetection))
+          !stopObstacle(trigPinDroite, echoPinDroite, seuilDetection))
         {
           etatPresent = ETAT_DROITE;
         }
@@ -390,13 +384,38 @@ void autonome(char* commande){
         break;
 
       default:
-        ETAT_ATTENTE;
+        etatPresent = ETAT_ATTENTE;
         break;
-        }
+    }
+  
+    // --- Action selon l’état ---
+
+    switch(etatPresent){
+      case ETAT_ATTENTE:
+        stopMoteurs();
+        break;
+
+      case ETAT_AVANCER:
+        avancer(25);
+        break;
+      
+      case ETAT_GAUCHE:
+        reculer(25);
+        tournerGauche(160);
+        break;
+      
+      case ETAT_DROITE:
+        reculer(25);
+        tournerDroite(160);
+        break;
+      
+      case ETAT_RECULER:
+        reculer(25);
+        break;
+      
+      default:
+        stopMoteurs();
+        break;
     }
   }
 }
-
-
-
-
