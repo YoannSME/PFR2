@@ -34,5 +34,15 @@ class Client:
         except (json.JSONDecodeError, ValueError) as e:
             print(f"Erreur lors de la conversion: {e}")
             return None
+    def save_picture_client(self, endPoint, path):
+        url = f'http://{self.server_ip}:{self.port}/{endPoint}'
+        print(f"Requête vers : {url}")
+
+        response = requests.get(url)
+        image_path = os.path.join(path, "imageRequete.jpg")
+
+        with open(image_path, 'wb') as f:
+          f.write(response.content)
+        return image_path
 
 
