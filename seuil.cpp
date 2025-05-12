@@ -2,7 +2,8 @@
 #include <iostream>
 
 int main() {
-    cv::VideoCapture cap(0);
+    cv::VideoCapture cap("http://192.168.252.222:5000/video_feed");
+
     if (!cap.isOpened()) {
         std::cerr << "Erreur : impossible d'ouvrir la webcam." << std::endl;
         return -1;

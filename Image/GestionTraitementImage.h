@@ -1,9 +1,9 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include "Objet.h"
+#include "../Objet/Objet.h"
 #include <opencv2/opencv.hpp>
-#include <nlohmann/json.hpp>
+#include <../include/nlohmann/json.hpp>
 
 #include <fstream>
 #include <vector>
@@ -23,9 +23,9 @@ public:
     std::vector<Objet> traiterSelonCouleur(cv::Mat &image, Couleur);
     std::vector<Objet> traiterSelonForme(cv::Mat &image, Forme forme);
     std::vector<Objet> traiterImageAll(cv::Mat &image);
-    std::vector<Objet> chercherObjetAvecCouleur(const std::string &path, const std::string &couleur, const std::string &forme);
-    std::vector<Objet> chercherCouleur(const std::string &path,const std::string &couleur);
-    std::vector<Objet> chercherForme(const std::string &path,const std::string &forme);
+    std::vector<Objet> chercherObjetAvecCouleur(cv::Mat image,const std::string &couleur, const std::string &forme);
+    std::vector<Objet> chercherCouleur(cv::Mat image,const std::string &couleur);
+    std::vector<Objet> chercherForme(cv::Mat image,const std::string &forme);
     //std::vector<Objet> chercherObjetAvecCouleurF(cv::Mat &image, const std::string &couleur, const std::string &forme);
  
     void sauvegarderResultats(const std::vector<Objet>& objets);

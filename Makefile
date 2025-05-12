@@ -5,11 +5,11 @@ EXEC = detection
 OBJDIR = build
 
 # Liste des fichiers source
-SRCS = testWrite.cpp GestionTraitementImage.cpp Objet.cpp Couleur.cpp
+SRCS = traiterImage.cpp Image/GestionTraitementImage.cpp Objet/Objet.cpp Objet/Couleur.cpp
 
-# Fichiers objets dans build/
+# Fichiers objets dans build/ (respect de l'arborescence)
 OBJS = $(SRCS:.cpp=.o)
-OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
+OBJS := $(patsubst %.o,$(OBJDIR)/%.o,$(OBJS))
 
 # Compilateur
 CXX = g++
@@ -27,9 +27,9 @@ $(EXEC): $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo "Linking terminé."
 
-# Compilation des .cpp en .o dans build/
+# Compilation des .cpp en .o dans build/, en respectant les sous-dossiers
 $(OBJDIR)/%.o: %.cpp
-	@mkdir -p $(OBJDIR)
+	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	@echo "Compilation de $< terminée."

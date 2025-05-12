@@ -3,7 +3,8 @@
 using json = nlohmann::json;
 GestionTraitementImage::GestionTraitementImage()
 {
-    std::ifstream fichier("seuils.json");
+    
+    std::ifstream fichier("Image/seuils.json");
     if (!fichier.is_open())
     {
         std::cerr << "Erreur : impossible d’ouvrir seuils.json" << std::endl;
@@ -169,9 +170,9 @@ void to_json(nlohmann::json &j, const Objet &obj)
     };
 }
 
-std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleur(const std::string &path, const std::string &couleur, const std::string &forme)
+std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleur(cv::Mat image, const std::string &couleur, const std::string &forme)
 {
-    cv::Mat image = cv::imread(path);
+    //cv::Mat image = cv::imread(path);
     if (image.empty())
     {
         std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
@@ -191,9 +192,9 @@ std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleur(const std::s
     return objets;
 }
 
-std::vector<Objet> GestionTraitementImage::chercherForme(const std::string &path,const std::string &forme)
+std::vector<Objet> GestionTraitementImage::chercherForme(cv::Mat image,const std::string &forme)
 {
-    cv::Mat image = cv::imread(path);
+    //cv::Mat image = cv::imread(path);
     if (image.empty())
     {
         std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
@@ -203,9 +204,9 @@ std::vector<Objet> GestionTraitementImage::chercherForme(const std::string &path
     return traiterSelonForme(image, formeRecherchee);
 }
 
-std::vector<Objet> GestionTraitementImage::chercherCouleur(const std::string &path,const std::string &couleur)
+std::vector<Objet> GestionTraitementImage::chercherCouleur(cv::Mat image,const std::string &couleur)
 {
-    cv::Mat image = cv::imread(path);
+    //cv::Mat image = cv::imread(path);
     if (image.empty())
     {
         std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
@@ -214,8 +215,6 @@ std::vector<Objet> GestionTraitementImage::chercherCouleur(const std::string &pa
     Couleur couleurAssociee = getCouleurAssocie(couleur);
     return traiterSelonCouleur(image, couleurAssociee);
 }
-
-
 
 /*std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleurVIDEO(cv::Mat &image, const std::string &couleur, const std::string &forme)
 {
@@ -243,7 +242,7 @@ void GestionTraitementImage::sauvegarderResultats(const std::vector<Objet> &obje
         index++;
     }
 
-    std::ofstream fichier("Res/resultats.json");
+    std::ofstream fichier("retour/resultats.json");
     if (!fichier.is_open())
     {
         std::cerr << "Erreur : impossible d’écrire dans resultats.json" << std::endl;
