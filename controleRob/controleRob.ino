@@ -10,6 +10,18 @@ AF_DCMotor moteurDerriereDroite(2);
 AF_DCMotor moteurDerriereGauche(1);
 // ------------------------------------------------------------
 
+// --------- Définition de la variable locale d'état ----------
+// --- Configuration des États ---
+enum Etat {
+  ETAT_ATTENTE,
+  ETAT_AVANCER,
+  ETAT_RECULER,
+  ETAT_GAUCHE,
+  ETAT_DROITE};
+
+Etat etatPresent = ETAT_ATTENTE;
+// ------------------------------------------------------------
+
 // ------------ Définition des capteurs ultrasons -------------
 const int trigPinGauche = 52;
 const int echoPinGauche = 53;
@@ -24,7 +36,7 @@ const int seuilDetection = 30;
 
 // ------------------------ Autom ----------------------------
 bool ModeAutom = false;
-char etatSysteme = 'S';
+char arretSysteme = '1';
 // ------------------------------------------------------------
 
 // ---------------------- Temporisateur -----------------------
@@ -45,14 +57,12 @@ void setup() {
 
 void setupBluetooth() {
   while (!Serial);  // Attendre que la connexion série soit prête
-  //Serial.println("Entrez les commandes sous forme : avancer(100) reculer(50) tourner(90)");
 
   // Communication série pour le module Bluetooth (port série 1 ou un autre port)
   Serial1.begin(9600);
 }
 
 void setupMoteur() {
-  //Serial.println("Initialisation des moteurs...");
   // Réglage de la vitesse des moteurs
   setVitesse(vitesse);
   // Arrêt initial des moteurs
@@ -70,12 +80,12 @@ void setupCapteurs(){
 // -------------------------------------------------------------
 
 void loop() {
+  Serial1.write(arretSysteme);
   static int indexI = 0;
   static int indexC = 0;
   if(ModeAutom){
     if(Serial1.available()) {
       String commande = Serial1.readStringUntil('\n');
-     // Serial.println(commande);
       if (commande == "Y") ModeAutom = false;
     }
     autonome();
@@ -90,12 +100,8 @@ void loop() {
       else{
         char buffer[commande.length() + 1];
         commande.toCharArray(buffer, sizeof(buffer));
-        // Serial.println("COmmande :");
-        // Serial.println(commande);
         char* actions = strtok(buffer," ");
         while(actions != NULL){
-          // Serial.print("Commande courante - ");
-          // Serial.println(actions);
           traiter_commande(actions);
           actions = strtok(NULL," ");
         }
@@ -106,12 +112,9 @@ void loop() {
 
 // ----------------------  gerer les commandes vocales ou manette -----------------------
 void traiter_commande(char* commande) {
-  // Serial.print(commande);
   char fonction[50];
   int parametre = 0;
   int lu = sscanf(commande, "%49[^()]%*c%d", fonction, &parametre);  // essaie de lire fonction et paramètre
-  //Serial.println(commande);
-  //Serial.println(parametre);
   if (lu == 2) {
     if (strcmp(fonction, "F") == 0) {
       if (stopObstacle(trigPinAvant, echoPinAvant, seuilDetection)){
@@ -186,7 +189,6 @@ void traiter_commande(char* commande) {
     }
   }
   else {
-    //Serial.println("Commande invalide !");
     setVitesse(vitesse);
     stopMoteurs();
   }
@@ -252,6 +254,7 @@ void setVitesse(int vitesse) {
 }
 
 void stopMoteurs() {
+  arretSysteme = '1';
   moteurAvantGauche.run(RELEASE);
   moteurAvantDroit.run(RELEASE);
   moteurDerriereDroite.run(RELEASE);
@@ -259,6 +262,7 @@ void stopMoteurs() {
 }
 
 void reculer() {
+  arretSysteme = '0';
   moteurAvantGauche.run(FORWARD);
   moteurAvantDroit.run(FORWARD);
   moteurDerriereDroite.run(FORWARD);
@@ -266,6 +270,7 @@ void reculer() {
 }
 
 void avancer() {
+  arretSysteme = '0';
   moteurAvantGauche.run(BACKWARD);
   moteurAvantDroit.run(BACKWARD);
   moteurDerriereDroite.run(BACKWARD);
@@ -273,6 +278,7 @@ void avancer() {
 }
 
 void tournerDroite() {
+  arretSysteme = '0';
   moteurAvantGauche.run(BACKWARD);
   moteurAvantDroit.run(FORWARD);
   moteurDerriereDroite.run(FORWARD);
@@ -280,6 +286,7 @@ void tournerDroite() {
 }
 
 void tournerGauche() {
+  arretSysteme = '0';
   moteurAvantGauche.run(FORWARD);
   moteurAvantDroit.run(BACKWARD);
   moteurDerriereDroite.run(BACKWARD);
@@ -288,6 +295,7 @@ void tournerGauche() {
 
 // Définir les fonctions de commandes
 void avancer(float distance) {
+  arretSysteme = '0';
   unsigned long duree = conversionDistTemps(distance);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
@@ -299,6 +307,7 @@ void avancer(float distance) {
 }
 
 void reculer(float distance) {
+  arretSysteme = '0';
   unsigned long duree = conversionDistTemps(distance);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
@@ -309,6 +318,7 @@ void reculer(float distance) {
 
 
 void tournerDroite(float angle) {
+  arretSysteme = '0';
   unsigned long duree = conversionAngleTemps(angle);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
@@ -318,6 +328,7 @@ void tournerDroite(float angle) {
 }
 
 void tournerGauche(float angle){
+  arretSysteme = '0';
   unsigned long duree = conversionAngleTemps(angle);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
@@ -329,15 +340,6 @@ void tournerGauche(float angle){
 
 // --------------------------------- Autonome ---------------------------------
 
-// --- Configuration des États ---
-enum Etat {
-  ETAT_ATTENTE,
-  ETAT_AVANCER,
-  ETAT_RECULER,
-  ETAT_GAUCHE,
-  ETAT_DROITE};
-
-Etat etatPresent = ETAT_ATTENTE;
 
 void autonome(){
   setVitesse(200);
