@@ -96,9 +96,9 @@ void loop() {
   else{
     if(Serial1.available()) {//ça remplit le tableau tant qu'on reçoit quelque chose par bluetooth
       String commande = Serial1.readStringUntil('\n');
-      Serial.print("commande recu : ");
+      //Serial.print("commande recu : ");
       commande.trim();
-      Serial.println(commande);
+      //Serial.println(commande);
       if(commande.length()==1){
         traiter_commande(commande.c_str());
       }
@@ -122,18 +122,13 @@ void traiter_commande(char* commande) {
   int lu = sscanf(commande, "%49[^()]%*c%d", fonction, &parametre);  // essaie de lire fonction et paramètre
   if (lu == 2) {
     if (strcmp(fonction, "F") == 0) {
-      if (stopObstacle(trigPinAvant, echoPinAvant, seuilDetection)){
-        stopMoteurs();
-      }
-      else{
-        avancer(parametre);
-      }
+      avancer(parametre);
     } else if (strcmp(fonction, "B") == 0) {
       reculer(parametre);
     } else if (strcmp(fonction, "R") == 0) {
-        tournerDroite(parametre);
+      tournerDroite(parametre);
     } else if (strcmp(fonction, "L") == 0) {
-        tournerGauche(parametre);
+      tournerGauche(parametre);
     }
   }
   else if (lu == 1) {
@@ -307,6 +302,9 @@ void avancer(float distance) {
   while(millis()<tpsCible){
     if(!stopObstacle(trigPinAvant, echoPinAvant, seuilDetection)){
       avancer();
+    }
+    else{
+      stopMoteurs();
     }
   }
   Serial1.write(systemeArrete);
