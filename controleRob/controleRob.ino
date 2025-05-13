@@ -36,7 +36,8 @@ const int seuilDetection = 30;
 
 // ------------------------ Autom ----------------------------
 bool ModeAutom = false;
-char arretSysteme = '1';
+char systemeArrete = '1';  //Pour acquitter l'arret du systeme à l'ordi
+// char arretSysteme = '1';
 // ------------------------------------------------------------
 
 // ---------------------- Temporisateur -----------------------
@@ -80,7 +81,8 @@ void setupCapteurs(){
 // -------------------------------------------------------------
 
 void loop() {
-  Serial1.write(arretSysteme);
+  //Serial1.write(arretSysteme);
+
   static int indexI = 0;
   static int indexC = 0;
   if(ModeAutom){
@@ -88,12 +90,15 @@ void loop() {
       String commande = Serial1.readStringUntil('\n');
       if (commande == "Y") ModeAutom = false;
     }
+    
     autonome();
   }
   else{
     if(Serial1.available()) {//ça remplit le tableau tant qu'on reçoit quelque chose par bluetooth
       String commande = Serial1.readStringUntil('\n');
+      Serial.print("commande recu : ");
       commande.trim();
+      Serial.println(commande);
       if(commande.length()==1){
         traiter_commande(commande.c_str());
       }
@@ -110,7 +115,7 @@ void loop() {
   }
 }
 
-// ----------------------  gerer les commandes vocales ou manette -----------------------
+// ----------------------  gerer les commandes vocales ou manette  -----------------------
 void traiter_commande(char* commande) {
   char fonction[50];
   int parametre = 0;
@@ -254,7 +259,7 @@ void setVitesse(int vitesse) {
 }
 
 void stopMoteurs() {
-  arretSysteme = '1';
+  //arretSysteme = '1';
   moteurAvantGauche.run(RELEASE);
   moteurAvantDroit.run(RELEASE);
   moteurDerriereDroite.run(RELEASE);
@@ -262,7 +267,7 @@ void stopMoteurs() {
 }
 
 void reculer() {
-  arretSysteme = '0';
+  //arretSysteme = '0';
   moteurAvantGauche.run(FORWARD);
   moteurAvantDroit.run(FORWARD);
   moteurDerriereDroite.run(FORWARD);
@@ -270,7 +275,7 @@ void reculer() {
 }
 
 void avancer() {
-  arretSysteme = '0';
+  //arretSysteme = '0';
   moteurAvantGauche.run(BACKWARD);
   moteurAvantDroit.run(BACKWARD);
   moteurDerriereDroite.run(BACKWARD);
@@ -278,7 +283,7 @@ void avancer() {
 }
 
 void tournerDroite() {
-  arretSysteme = '0';
+  //arretSysteme = '0';
   moteurAvantGauche.run(BACKWARD);
   moteurAvantDroit.run(FORWARD);
   moteurDerriereDroite.run(FORWARD);
@@ -286,7 +291,7 @@ void tournerDroite() {
 }
 
 void tournerGauche() {
-  arretSysteme = '0';
+  //arretSysteme = '0';
   moteurAvantGauche.run(FORWARD);
   moteurAvantDroit.run(BACKWARD);
   moteurDerriereDroite.run(BACKWARD);
@@ -295,7 +300,7 @@ void tournerGauche() {
 
 // Définir les fonctions de commandes
 void avancer(float distance) {
-  arretSysteme = '0';
+  //arretSysteme = '0';
   unsigned long duree = conversionDistTemps(distance);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
@@ -304,37 +309,42 @@ void avancer(float distance) {
       avancer();
     }
   }
+  Serial1.write(systemeArrete);
 }
 
 void reculer(float distance) {
-  arretSysteme = '0';
+  //arretSysteme = '0';
   unsigned long duree = conversionDistTemps(distance);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
   while(millis()<tpsCible){
     reculer();
   }
+  Serial1.write(systemeArrete);
 }
 
 
 void tournerDroite(float angle) {
-  arretSysteme = '0';
+  //arretSysteme = '0';
   unsigned long duree = conversionAngleTemps(angle);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
   while(millis()<tpsCible){
     tournerDroite();
   }
+  Serial1.write(systemeArrete);
 }
 
 void tournerGauche(float angle){
-  arretSysteme = '0';
+  //arretSysteme = '0';
   unsigned long duree = conversionAngleTemps(angle);
   tpsDepart = millis();
   tpsCible = tpsDepart+duree;
   while(millis()<tpsCible){
     tournerGauche();
   }
+  Serial1.write(systemeArrete);
+
 }
 // ------------------------- Fin gestion des moteurs --------------------------
 
