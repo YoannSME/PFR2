@@ -1,6 +1,6 @@
 {
     "deplacementLineaire":{
-    "F" : ["avance", "avancer","avancé","avançais","avancee","avancée"],
+    "F" : ["avance", "avancer","avancé","avançais","avancee","avancée","prout"],
     "B" :["recule","reculer","reculé","reculais","reculait"]
     },
     

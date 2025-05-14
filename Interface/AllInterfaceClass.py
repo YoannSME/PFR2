@@ -308,8 +308,8 @@ class DeplacementManette(SousInterface):
             pygame.draw.circle(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), 3)
             # Indicateur d'orientation
             orientation = T_robot[:2, 0]  # vecteur "forward"
-            end_x = int(minimap_size // 2 + orientation[1] * 10)
-            end_y = int(minimap_size // 2 - orientation[0] * 10)
+            end_x = int(minimap_size // 2 + orientation[0] * 10)
+            end_y = int(minimap_size // 2 - orientation[1] * 10)
             pygame.draw.line(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), (end_x, end_y), 2)
 
         # Affichage en haut à droite
@@ -462,8 +462,8 @@ class DeplacementAutomatique(SousInterface):
             pygame.draw.circle(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), 3)
             # Indicateur d'orientation
             orientation = T_robot[:2, 0]  # vecteur "forward"
-            end_x = int(minimap_size // 2 + orientation[1] * 10)
-            end_y = int(minimap_size // 2 - orientation[0] * 10)
+            end_x = int(minimap_size // 2 + orientation[0] * 10)
+            end_y = int(minimap_size // 2 - orientation[1] * 10)
             pygame.draw.line(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), (end_x, end_y), 2)
 
         # Affichage en haut à droite

@@ -9,7 +9,7 @@ void enregistrerEtAfficher(std::vector<Objet> objets, cv::Mat &image, std::strin
     {
         cv::rectangle(image, cv::Rect(obj.x, obj.y, obj.w, obj.h), cv::Scalar(255, 255, 255), 2);
     }
-    std::string pathRetour = "../TraitementImage/retour/retour.jpg";
+    std::string pathRetour = "TraitementImage/retour/retour.jpg";
     cv::imwrite(pathRetour, image);
 }
 int main(int argc, char **argv)

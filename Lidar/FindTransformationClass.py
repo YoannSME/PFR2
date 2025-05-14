@@ -186,7 +186,7 @@ class FindTransformation():
         
         return theta, t
 
-    def get_transform(self, rotation_steps=360, ICP_iter=100, initial_transformation_matrix=np.eye(3), ploting=False):
+    def get_transform(self, rotation_steps=360, ICP_iter=300, initial_transformation_matrix=np.eye(3), ploting=False):
         """ Applique la translation et la rotation puis affiche les scans alignés. """
         
         # Trouver la meilleure rotation

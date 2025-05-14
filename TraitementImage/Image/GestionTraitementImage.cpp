@@ -4,7 +4,7 @@ using json = nlohmann::json;
 GestionTraitementImage::GestionTraitementImage()
 {
     
-    std::ifstream fichier("../TraitementImage/Image/seuils.json");
+    std::ifstream fichier("TraitementImage/Image/seuils.json");
     if (!fichier.is_open())
     {
         std::cerr << "Erreur : impossible d’ouvrir seuils.json" << std::endl;
@@ -242,7 +242,7 @@ void GestionTraitementImage::sauvegarderResultats(const std::vector<Objet> &obje
         index++;
     }
 
-    std::ofstream fichier("../TraitementImage/retour/resultats.json");
+    std::ofstream fichier("TraitementImage/retour/resultats.json");
     if (!fichier.is_open())
     {
         std::cerr << "Erreur : impossible d’écrire dans resultats.json" << std::endl;

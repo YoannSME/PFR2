@@ -1,7 +1,7 @@
 import sys
 import subprocess
 import json 
-
+import time
 class AlgorithmeRecherche:
     def __init__(self,bt,flask):
         self.bt = bt
@@ -9,14 +9,19 @@ class AlgorithmeRecherche:
 
     def chercher(self, mode: int, forme=None, couleur=None):
         fin = False
-        tries = 0
-        max_tries = 12
+        tries = 1
+        max_tries = 50
 
         while not fin and tries < max_tries:
+            if(tries%8==0):
+                self.bt.send("F(50) \n")
+                while(self.bt.read()!="1"):
+                    self.bt.send("S\n")
+                
             print("[Info] Debut de la recherche")
             pathImage = self.flask.takePictureClient()
             print(pathImage)
-            commande = ["TraitementImage/detection.exe", "imageRequete.jpg", str(mode)]
+            commande = ["TraitementImage/detection", pathImage, str(mode)]
             if mode == 1 and couleur:
                 commande.append(couleur)
             elif mode == 2 and forme:
@@ -25,49 +30,61 @@ class AlgorithmeRecherche:
                 commande.extend([couleur, forme])
             print("Commande exécutée :", commande)
             try: 
-               subprocess.run(commande, capture_output=True, text=True)
-
+               result = subprocess.run(commande, capture_output=True, text=True)
+               
             except Exception as e:
                 print("erreur subprocess")
                 return
-
+           
             objPresent, obj = self.getObjetPresent(forme, couleur)
-
+            
             if objPresent:
                 distX = obj["distX"]
-                if abs(distX) > 15:
-                    print("[Info] Je ne suis pas axé : Rotation")
-                    angle = abs(distX)
-                    direction = "L" if distX > 0 else "G"
-                    self.bt.send(f"{direction}({angle*0.4215}) S\n")
-                    print("[Info] J'ai tourné")
+                if objPresent and abs(distX) > 15:
+                    #print("[Info] Je ne suis pas axé : Rotation")
+                    angle = (distX/480)*30
+                    print("[INFO] je dois tourner de ", angle)
+                    direction = "R" if angle > 0 else "L"
+                    self.bt.send(f"{direction}({angle}) S\n")
+                    #print("[Info] J'ai tourné")
                     while(self.bt.read()!="1"):
-                        pass
-                    print("suivant")
-                    
-                while obj["aire"] < 30000:
-                    print("[Info] Debut approche")
-                    self.bt.send("F(30) S\n")
-                    while(self.bt.read()!="1"):
-                        pass
-                    
+                        self.bt.send("S\n")   
+                     
                     pathImage = self.flask.takePictureClient()
                     commande[1] = pathImage
-                    subprocess.run(commande, capture_output=True, text=True)
-
+                    result = subprocess.run(commande, capture_output=True, text=True)
+                    distX = obj["distX"]
+                    #print("suivant")
+                    
+                while obj["aire"] < 15000:
+                    print("[Info] Debut approche")
+                    self.bt.send("F(50) S\n")
+                    while(self.bt.read()!="1"):
+                        self.bt.send("S\n")
+                    pathImage = self.flask.takePictureClient()
+                    
+                    commande[1] = pathImage
+                    result = subprocess.run(commande, capture_output=True, text=True)
+                    #print("result", result)
+                    #print("result stdout", result.stdout)
+                    #print("result stderr", result.stderr)
+                    time.sleep(1)
                     objPresent, obj = self.getObjetPresent(forme, couleur)
                     if not objPresent:
-                        print("[Info] Objet perdu pendant l'approche.")
+                        #print("[Info] Objet perdu pendant l'approche.")
                         break
-                if(objPresent and obj["aire"]>=45000):
+                if(objPresent and obj["aire"]>=15000):
+                    self.bt.send("S\n")
                     print("[Info] Balle trouvée")
+                    fin = True
                     return
             else:
                 print(f"[Info] Objet non trouvé. Rotation...")
                 self.bt.send("R(60) S\n")
                 while(self.bt.read()!="1"):
-                    pass
-
+                    self.bt.send("S\n")
+                    
+                time.sleep(1)
             tries += 1
         print("FIN TRAITEMENT")
 
@@ -82,7 +99,7 @@ class AlgorithmeRecherche:
 
     def chercherFormeAvecCouleur(self, forme, couleur):
         print("Debut recherche de forme et couleur")
-        self.chercher(mode=3, forme=forme, couleur=couleur)
+        self.chercher(mode=3, couleur=couleur,forme=forme)
 
     def getObjetPresent(self, forme: str, couleur: str):
         with open("TraitementImage/retour/resultats.json", "r") as f:

@@ -1,15 +1,15 @@
 {
     "objet1": {
-        "aire": 4431,
-        "couleur": "orange",
-        "cx": 351.3355901602347,
-        "cy": 291.8214849921011,
-        "distX": -75,
-        "distY": 51,
+        "aire": 16510,
+        "couleur": "vert",
+        "cx": 157.89854633555422,
+        "cy": 315.4016353725015,
+        "distX": -269,
+        "distY": 75,
         "forme": "balle",
-        "hauteur": 78,
-        "largeur": 75,
-        "x": 314,
-        "y": 254
+        "hauteur": 148,
+        "largeur": 150,
+        "x": 83,
+        "y": 243
     }
 }
