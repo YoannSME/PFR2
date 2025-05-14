@@ -1,0 +1,1 @@
+ g++ -std=c++17 -Wall -Wno-overloaded-virtual -Iinclude -I/mingw64/include/opencv4 -o detection.exe traiterImage.cpp Image/GestionTraitementImage.cpp Objet/Objet.cpp Objet/Couleur.cpp -L/mingw64/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc

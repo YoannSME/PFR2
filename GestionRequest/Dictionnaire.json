@@ -1,0 +1,39 @@
+{
+    "deplacementLineaire":{
+    "F" : ["avance", "avancer","avancé","avançais","avancee","avancée"],
+    "B" :["recule","reculer","reculé","reculais","reculait"]
+    },
+    
+    "deplacementAngulaire":{
+    "L":["gauche"],
+    "R":["droite"]
+},
+
+    "S":["stop","arrête","arrete"],
+
+    "commandesSpeciales":{
+        "zigzag":["R(45)","F(50)", "L(90)", "F(50)" ,"R(90)", "F(50)"],
+        "demi-tour": ["F(100)", "R(180)","F(100)"]
+    
+    },
+    "actions":["cherche","jusqu'à","jusqu'a","jusque","jusqu","recherche","chercher"],
+
+    "objets":{
+        "balle":["balle", "cercle","rond"],
+        "cube":["cube", "carré" ,"carre"]
+    },
+
+    "couleurs":{
+        "jaune":["jaune", "yellow"],
+        "orange":["orange","orange"],
+        "bleu":["bleu", "blue","bleue"],
+        "vert":["verte","vert","green"]
+    },
+    "unites":{
+        "cm":["cm","centimetre","centimetres"],
+        "m":["m","M","metre","metres","mètres","maitre","mettre"]
+    },
+
+    "negations":["ne", "n", "non"]
+    
+}

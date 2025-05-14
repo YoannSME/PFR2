@@ -1,0 +1,15 @@
+{
+    "objet1": {
+        "aire": 4431,
+        "couleur": "orange",
+        "cx": 351.3355901602347,
+        "cy": 291.8214849921011,
+        "distX": -75,
+        "distY": 51,
+        "forme": "balle",
+        "hauteur": 78,
+        "largeur": 75,
+        "x": 314,
+        "y": 254
+    }
+}
