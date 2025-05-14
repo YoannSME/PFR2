@@ -16,7 +16,7 @@ class GestionRequest:
         self.angle_defaut_zigzag = 45
         self.dico = self.chargerDictionnaire(self.pathDico)
         self.algorithmes = AlgorithmeRecherche(bt, flask)
-        self.pathRequeteVocale = os.path.abspath("requeteVocale.txt")
+        
         
         self.bt = bt
         self.flask = flask
@@ -172,7 +172,8 @@ class GestionRequest:
                         indice += 1
 
                 else:
-                    commandes_finales.append(requete_filtree[indice])
+                    if(categorie !='unites'):
+                        commandes_finales.append(requete_filtree[indice])
 
             indice += 1
         commandeSansNegations = self.traitementNegations(commandes_finales)
@@ -265,6 +266,8 @@ class GestionRequest:
         motsFiltres = self.filtrerMots(texte)
         print(" Mots filtrés :", motsFiltres)
 
+        text = " ".join(str(c) for c in motsFiltres)
+        self.robotVocal(text)
         requete = self.transformationRequeteCommande(motsFiltres)
         print(" Requête à envoyer :", requete, "| taille :", len(requete))
 
@@ -286,9 +289,22 @@ class GestionRequest:
         print("commande : ",commande)
         commandeFiltree = self.filtrerMots(commande)
         print("Commande filtree : ",commandeFiltree)
+        
+        text = " ".join(str(c) for c in commandeFiltree)
+        self.robotVocal(text)
+        
         requeteCommande = self.transformationRequeteCommande(commandeFiltree)
         print("commande à effectuer : ",requeteCommande)
         self.envoyerCommande(requeteCommande)
+        
+    def robotVocal(self, text,msgDefaut = "Je vais réaliser les commandes"):
+            speech = gTTS(text, lang="fr", slow=False)
+            # Save the audio file to a temporary file
+            speech_file = 'speech.mp3'
+            speech.save(speech_file)
+            # Play the audio file
+            os.system('mpg123 ' + speech_file)
+        
         
     def envoyerCommande(self, commande):
         #if not os.path.exists(path):
@@ -305,7 +321,8 @@ class GestionRequest:
                 while(not self.bt.read()=="1"):
                     pass
         self.bt.send(" S\n")
-        print("fini")
+        self.robotVocal("J'ai fini."," ")
+        
 
     def tstAutonome(self):
         commande = "avance de 100m puis avance de 200 centimètres puis cherche une balle, puis cherche un carré bleu puis cherche une couleur verte"

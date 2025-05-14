@@ -1,26 +1,26 @@
 {
     "deplacementLineaire":{
-    "F" : ["avance", "avancer","avancé","avançais","avancee","avancée","prout"],
-    "B" :["recule","reculer","reculé","reculais","reculait"]
+    "F" : ["avance", "avancer","avancé","avançais","avancee","avancée","prout","forward","前进"],
+    "B" :["recule","reculer","reculé","reculais","reculait","backward"]
     },
     
     "deplacementAngulaire":{
-    "L":["gauche"],
-    "R":["droite"]
+    "L":["gauche","left"],
+    "R":["droite","right"]
 },
 
     "S":["stop","arrête","arrete"],
 
     "commandesSpeciales":{
-        "zigzag":["R(45)","F(50)", "L(90)", "F(50)" ,"R(90)", "F(50)"],
+        "zigzag":["R(45)","F(50)", "L(90)", "F(50)" ,"R(90)", "F(50)","R(45)","F(50)", "L(90)", "F(50)" ,"R(90)", "F(50)"],
         "demi-tour": ["F(100)", "R(180)","F(100)"]
     
     },
     "actions":["cherche","jusqu'à","jusqu'a","jusque","jusqu","recherche","chercher"],
 
     "objets":{
-        "balle":["balle", "cercle","rond"],
-        "cube":["cube", "carré" ,"carre"]
+        "balle":["balle", "cercle","rond","ball"],
+        "cube":["cube", "carré" ,"carre","square"]
     },
 
     "couleurs":{
@@ -31,9 +31,9 @@
     },
     "unites":{
         "cm":["cm","centimetre","centimetres"],
-        "m":["m","M","metre","metres","mètres","maitre","mettre"]
+        "m":["m","M","metre","metres","mètres","maitre","mettre","meters"]
     },
 
-    "negations":["ne", "n", "non"]
+    "negations":["ne", "n", "non","t","not","no"]
     
 }

@@ -2,11 +2,17 @@ import sys
 import subprocess
 import json 
 import time
+import os
+import pyaudio
+from gtts import gTTS
+
+
 class AlgorithmeRecherche:
     def __init__(self,bt,flask):
         self.bt = bt
         self.flask = flask
-
+        
+        
     def chercher(self, mode: int, forme=None, couleur=None):
         fin = False
         tries = 1
@@ -26,8 +32,8 @@ class AlgorithmeRecherche:
                 commande.append(couleur)
             elif mode == 2 and forme:
                 commande.append(forme)
-            elif mode == 3 and couleur and forme:
-                commande.extend([couleur, forme])
+            elif mode == 3 and forme and couleur:
+                commande.extend([forme, couleur])
             print("Commande exécutée :", commande)
             try: 
                result = subprocess.run(commande, capture_output=True, text=True)
@@ -45,6 +51,7 @@ class AlgorithmeRecherche:
                     angle = (distX/480)*30
                     print("[INFO] je dois tourner de ", angle)
                     direction = "R" if angle > 0 else "L"
+                    lastOrientation = direction
                     self.bt.send(f"{direction}({angle}) S\n")
                     #print("[Info] J'ai tourné")
                     while(self.bt.read()!="1"):
@@ -68,14 +75,13 @@ class AlgorithmeRecherche:
                     #print("result", result)
                     #print("result stdout", result.stdout)
                     #print("result stderr", result.stderr)
-                    time.sleep(1)
                     objPresent, obj = self.getObjetPresent(forme, couleur)
                     if not objPresent:
                         #print("[Info] Objet perdu pendant l'approche.")
                         break
                 if(objPresent and obj["aire"]>=15000):
                     self.bt.send("S\n")
-                    print("[Info] Balle trouvée")
+                    self.robotVocal("Objet trouvé"," Hourra !,")
                     fin = True
                     return
             else:
@@ -88,6 +94,13 @@ class AlgorithmeRecherche:
             tries += 1
         print("FIN TRAITEMENT")
 
+    def robotVocal(self, text,msgDefaut = "Je vais réaliser les commandes"):
+            speech = gTTS(text, lang="fr", slow=False)
+            # Save the audio file to a temporary file
+            speech_file = 'speech.mp3'
+            speech.save(speech_file)
+            # Play the audio file
+            os.system('mpg123 ' + speech_file)
 
     def chercherForme(self, forme):
         print("Debut recherche de forme")
@@ -99,7 +112,7 @@ class AlgorithmeRecherche:
 
     def chercherFormeAvecCouleur(self, forme, couleur):
         print("Debut recherche de forme et couleur")
-        self.chercher(mode=3, couleur=couleur,forme=forme)
+        self.chercher(mode=3,forme=forme,couleur=couleur)
 
     def getObjetPresent(self, forme: str, couleur: str):
         with open("TraitementImage/retour/resultats.json", "r") as f:
