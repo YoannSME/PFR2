@@ -239,7 +239,10 @@ class DeplacementManette(SousInterface):
         if 5 in buttons or "space" in pressed_keys:
             self.utils.bt.send("S\n")
             new_data = self.utils.rasp.getLidarFromServeur()
-            self.utils.cartographie.update_carte(new_data)
+            try :
+                self.utils.cartographie.update_carte(new_data)
+            except:
+                pass
             
         if 1 in buttons or "esc" in pressed_keys:
             def quitter():
@@ -272,6 +275,45 @@ class DeplacementManette(SousInterface):
         if self.image_surface:
             with self.surface_lock:
                 self.screen.blit(self.image_surface, (0, 0))
+                
+        # Taille de la mini-carte
+        minimap_size = min(screen_width // 2, screen_height // 2)
+        minimap_surface = pygame.Surface((minimap_size, minimap_size))
+        minimap_surface.fill((10, 10, 10)) 
+        
+        # Récupération des points LIDAR globaux
+        points = self.utils.cartographie.carte.copy()
+        T_robot = self.utils.cartographie.pos.copy() 
+
+        # Si le robot est quelque part sur la carte
+        if points is not None and len(points) > 100:
+            # Centrage de la mini-map sur le robot
+            robot_pos = T_robot[:2, 2]
+            
+            # Fenêtre à afficher autou du robot
+            visible_radius = 5000  # rayon autour du robot
+            scale = minimap_size / (2 * visible_radius)
+            
+            for x, y in points:
+                dx, dy = x - robot_pos[0], y - robot_pos[1]
+                if abs(dx) > visible_radius or abs(dy) > visible_radius:
+                    continue
+
+                px = int(minimap_size // 2 + dx * scale)
+                py = int(minimap_size // 2 - dy * scale)
+                if 0 <= px < minimap_size and 0 <= py < minimap_size:
+                    minimap_surface.set_at((px, py), (0, 255, 0))  # point vert
+
+            # Dessin du robo
+            pygame.draw.circle(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), 3)
+            # Indicateur d'orientation
+            orientation = T_robot[:2, 0]  # vecteur "forward"
+            end_x = int(minimap_size // 2 + orientation[1] * 10)
+            end_y = int(minimap_size // 2 - orientation[0] * 10)
+            pygame.draw.line(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), (end_x, end_y), 2)
+
+        # Affichage en haut à droite
+        self.screen.blit(minimap_surface, (screen_width - minimap_size - 10, 10))
 
         pygame.display.flip()
 
@@ -341,8 +383,15 @@ class DeplacementAutomatique(SousInterface):
                 self.utils.bt.send("Y\n")
                 self.utils.bt.send("S\n")
                 
+            while(self.utils.bt.read() == '1'):
+                    self.utils.bt.send("Y\n")
+                    self.utils.bt.send("S\n")
+                
             new_data = self.utils.rasp.getLidarFromServeur()
-            self.utils.cartographie.update_carte(new_data)
+            try:
+                self.utils.cartographie.update_carte(new_data)
+            except:
+                pass
         
         if 1 in buttons or "esc" in pressed_keys:
             def quitter():
@@ -352,15 +401,15 @@ class DeplacementAutomatique(SousInterface):
             try:
                 while(self.utils.bt.read() == '1'):
                     self.utils.bt.send("Y\n")
+                    self.utils.bt.send("S\n")
+                while(self.utils.bt.read() == '1'):
+                    self.utils.bt.send("Y\n")
                     self.utils.bt.send("S\n") 
             except:
                 pass
             self.set_active_child(PopUpConfirm(self, self.utils, self.utils.traduction.traduire("voulez_vous_quitter"), quitter))
             
             self.active_child.handle_events()
-    
-    def on_select(self):
-        pass
     
     def render(self):
         if self.active_child:
@@ -380,6 +429,45 @@ class DeplacementAutomatique(SousInterface):
         if self.image_surface:
             with self.surface_lock:
                 self.screen.blit(self.image_surface, (0, 0))
+                
+        # Taille de la mini-carte
+        minimap_size = min(screen_width // 2, screen_height // 2)
+        minimap_surface = pygame.Surface((minimap_size, minimap_size))
+        minimap_surface.fill((10, 10, 10)) 
+        
+        # Récupération des points LIDAR globaux
+        points = self.utils.cartographie.carte.copy()
+        T_robot = self.utils.cartographie.pos.copy() 
+
+        # Si le robot est quelque part sur la carte
+        if points is not None and len(points) > 100:
+            # Centrage de la mini-map sur le robot
+            robot_pos = T_robot[:2, 2]
+            
+            # Fenêtre à afficher autou du robot
+            visible_radius = 5000  # rayon autour du robot
+            scale = minimap_size / (2 * visible_radius)
+            
+            for x, y in points:
+                dx, dy = x - robot_pos[0], y - robot_pos[1]
+                if abs(dx) > visible_radius or abs(dy) > visible_radius:
+                    continue
+
+                px = int(minimap_size // 2 + dx * scale)
+                py = int(minimap_size // 2 - dy * scale)
+                if 0 <= px < minimap_size and 0 <= py < minimap_size:
+                    minimap_surface.set_at((px, py), (0, 255, 0))  # point vert
+
+            # Dessin du robo
+            pygame.draw.circle(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), 3)
+            # Indicateur d'orientation
+            orientation = T_robot[:2, 0]  # vecteur "forward"
+            end_x = int(minimap_size // 2 + orientation[1] * 10)
+            end_y = int(minimap_size // 2 - orientation[0] * 10)
+            pygame.draw.line(minimap_surface, (255, 0, 0), (minimap_size // 2, minimap_size // 2), (end_x, end_y), 2)
+
+        # Affichage en haut à droite
+        self.screen.blit(minimap_surface, (screen_width - minimap_size - 10, 10))
 
         pygame.display.flip()
        

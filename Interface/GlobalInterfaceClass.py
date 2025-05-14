@@ -23,7 +23,6 @@ class InterfaceGlobale():
         
         self.running = True
         self.clock = pygame.time.Clock()
-            
         self.root_interface = MenuPrincipal(self, self.screen, self.utils)
     
     def run(self):
