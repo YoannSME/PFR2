@@ -1,6 +1,5 @@
 import pygame
 
-
 class Manette:
     """
     Classe Manette

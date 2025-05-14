@@ -5,7 +5,6 @@ import requests
 import threading
 from Interface.SousInterfaceClass import SousInterface
 
-
 class PopUpConfirm(SousInterface):
     def __init__(self, parent, utils, message, on_confirm, on_cancel=None):
         super().__init__(parent, parent.screen, utils)
@@ -200,26 +199,36 @@ class DeplacementManette(SousInterface):
         buttons = self.utils.manette.get_button_pressed()
         pressed_keys = self.utils.keyboard.get_press()
         
-        #print(self.utils.bt.read())
-        
-        if   (joystick[1] <= -0.5 and joystick[0] >= -0.5 and joystick[0] <= 0.5) or "up" in pressed_keys:
-            status = ("F\n")
-        elif (joystick[1] >= 0.5 and joystick[0] >= -0.5 and joystick[0] <= 0.5) or "down" in pressed_keys:
-            status = ("B\n")
-        elif (joystick[0] <= -0.5 and joystick[1] >= -0.5 and joystick[1] <= 0.5) or "left" in pressed_keys:
-            status = ("L\n")
-        elif (joystick[0] >= 0.5 and joystick[1] >= -0.5 and joystick[1] <= 0.5) or "right" in pressed_keys:
-            status = ("R\n")
-        elif joystick[1] <= -0.5 and joystick[0] <= -0.5:
-            status = ("P\n")
-        elif joystick[1] <= -0.5 and joystick[0] >= 0.5:
-            status = ("A\n")
-        elif joystick[1] >= 0.5 and joystick[0] <= -0.5:
-            status = ("W\n")
-        elif joystick[1] >= 0.5 and joystick[0] >= 0.5:
-            status = ("N\n")
+        if self.utils.manette.isManette :
+            if   (joystick[1] <= -0.5 and joystick[0] >= -0.5 and joystick[0] <= 0.5) or "up" in pressed_keys:
+                status = ("F\n")
+            elif (joystick[1] >= 0.5 and joystick[0] >= -0.5 and joystick[0] <= 0.5) or "down" in pressed_keys:
+                status = ("B\n")
+            elif (joystick[0] <= -0.5 and joystick[1] >= -0.5 and joystick[1] <= 0.5) or "left" in pressed_keys:
+                status = ("L\n")
+            elif (joystick[0] >= 0.5 and joystick[1] >= -0.5 and joystick[1] <= 0.5) or "right" in pressed_keys:
+                status = ("R\n")
+            elif joystick[1] <= -0.5 and joystick[0] <= -0.5:
+                status = ("P\n")
+            elif joystick[1] <= -0.5 and joystick[0] >= 0.5:
+                status = ("A\n")
+            elif joystick[1] >= 0.5 and joystick[0] <= -0.5:
+                status = ("W\n")
+            elif joystick[1] >= 0.5 and joystick[0] >= 0.5:
+                status = ("N\n")
+            else :
+                status = ("S\n")
         else :
-            status = ("S\n")
+            if  "up" in pressed_keys:
+                status = ("F\n")
+            elif "down" in pressed_keys:
+                status = ("B\n")
+            elif "left" in pressed_keys:
+                status = ("L\n")
+            elif "right" in pressed_keys:
+                status = ("R\n")
+            else :
+                status = ("S\n")
 
         try:
             self.utils.bt.send(status)
@@ -230,7 +239,6 @@ class DeplacementManette(SousInterface):
         if 5 in buttons or "space" in pressed_keys:
             self.utils.bt.send("S\n")
             new_data = self.utils.rasp.getLidarFromServeur()
-            print(new_data.shape)
             self.utils.cartographie.update_carte(new_data)
             
         if 1 in buttons or "esc" in pressed_keys:
@@ -320,8 +328,7 @@ class DeplacementAutomatique(SousInterface):
         pressed_keys = self.utils.keyboard.update()
 
         self.cpt = self.cpt + 1
-        if self.cpt >= 6:
-            self.cpt = 0
+        if self.cpt%6 == 0:
             try:
                 self.utils.bt.send("S\n")
                 self.utils.bt.send("Z\n")
@@ -329,8 +336,8 @@ class DeplacementAutomatique(SousInterface):
                 self.set_active_child(None)
                 self.parent.set_active_child(None)    
                 
-        if 5 in buttons or "space" in pressed_keys:
-            for i in range(200):
+        if 5 in buttons or "space" in pressed_keys or self.cpt%60 == 0:
+            while(self.utils.bt.read() == '1'):
                 self.utils.bt.send("Y\n")
                 self.utils.bt.send("S\n")
                 
@@ -343,8 +350,9 @@ class DeplacementAutomatique(SousInterface):
                 self.parent.set_active_child(None)
 
             try:
-                self.utils.bt.send("Y\n")
-                self.utils.bt.send("S\n") 
+                while(self.utils.bt.read() == '1'):
+                    self.utils.bt.send("Y\n")
+                    self.utils.bt.send("S\n") 
             except:
                 pass
             self.set_active_child(PopUpConfirm(self, self.utils, self.utils.traduction.traduire("voulez_vous_quitter"), quitter))
@@ -485,7 +493,6 @@ class RequestVocal(SousInterface):
         self.screen.blit(title_surface, title_rect)
 
         pygame.display.flip()
-
 
 class RequestText(SousInterface):
     def __init__(self, parent=None, screen=None, utils=None):

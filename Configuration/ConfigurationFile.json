@@ -1,6 +1,6 @@
 {
     "langue": "fr-FR",
-    "bt_port": "/dev/rfcomm0",
+    "bt_port": "COM7",
     "bt_baud": 9600,
     "serveur_ip": "192.168.252.222",
     "vocal_dico_path": "GestionRequest/Dictionnaire.json",
