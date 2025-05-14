@@ -21,7 +21,10 @@ LDFLAGS = `pkg-config --libs opencv4`
 # Règle par défaut
 all: $(EXEC)
 
-ajouterCouleur : 
+ajouterCouleur :
+	@echo "Ajouter une de la couleur..."
+	$(CXX) $(CXXFLAGS) -o ajouterCouleur ajouterCouleur.cpp $(LDFLAGS)
+	@echo "Ajout une couleur terminé."
 
 # Construction de l'exécutable
 $(EXEC): $(OBJS)
