@@ -13,10 +13,9 @@ class AlgorithmeRecherche:
         max_tries = 12
 
         while not fin and tries < max_tries:
-            print("debut recherche")
+            print("[Info] Debut de la recherche")
             pathImage = self.flask.takePictureClient()
             print(pathImage)
-            # Construction dynamique de la commande à chaque image
             commande = ["TraitementImage/detection.exe", "imageRequete.jpg", str(mode)]
             if mode == 1 and couleur:
                 commande.append(couleur)
@@ -26,11 +25,7 @@ class AlgorithmeRecherche:
                 commande.extend([couleur, forme])
             print("Commande exécutée :", commande)
             try: 
-               result = subprocess.run(commande, capture_output=True, text=True)
-               
-               print("Code retour :", result.returncode)
-               print("STDOUT :", result.stdout)
-               print("STDERR :", result.stderr)
+               subprocess.run(commande, capture_output=True, text=True)
 
             except Exception as e:
                 print("erreur subprocess")
@@ -41,31 +36,31 @@ class AlgorithmeRecherche:
             if objPresent:
                 distX = obj["distX"]
                 if abs(distX) > 15:
-                    print("je ne suis pas axé")
+                    print("[Info] Je ne suis pas axé : Rotation")
                     angle = abs(distX)
-                    direction = "R" if distX > 0 else "L"
-                    self.bt.send(f"{direction}({angle}) S\n")
-                    print("je suis axé")
+                    direction = "L" if distX > 0 else "G"
+                    self.bt.send(f"{direction}({angle*0.4215}) S\n")
+                    print("[Info] J'ai tourné")
                     while(self.bt.read()!="1"):
                         pass
                     print("suivant")
                     
                 while obj["aire"] < 30000:
-                    print("je commence à avancer")
+                    print("[Info] Debut approche")
                     self.bt.send("F(30) S\n")
                     while(self.bt.read()!="1"):
                         pass
                     
                     pathImage = self.flask.takePictureClient()
                     commande[1] = pathImage
-                    result = subprocess.run(commande, capture_output=True, text=True)
+                    subprocess.run(commande, capture_output=True, text=True)
 
                     objPresent, obj = self.getObjetPresent(forme, couleur)
                     if not objPresent:
                         print("[Info] Objet perdu pendant l'approche.")
                         break
                 if(objPresent and obj["aire"]>=45000):
-                    print("J'AI TROUVE LA BALLE")
+                    print("[Info] Balle trouvée")
                     return
             else:
                 print(f"[Info] Objet non trouvé. Rotation...")
