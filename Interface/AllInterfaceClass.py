@@ -246,6 +246,8 @@ class DeplacementManette(SousInterface):
             
         if 1 in buttons or "esc" in pressed_keys:
             def quitter():
+                self.utils.cartographie.pos = np.eye(3)
+                self.utils.cartographie.carte = np.eye(1)
                 self.set_active_child(None)
                 self.parent.set_active_child(None)
 
@@ -282,8 +284,9 @@ class DeplacementManette(SousInterface):
         minimap_surface.fill((10, 10, 10)) 
         
         # Récupération des points LIDAR globaux
-        points = self.utils.cartographie.carte.copy()
-        T_robot = self.utils.cartographie.pos.copy() 
+        
+        points = self.utils.cartographie.carte
+        T_robot = self.utils.cartographie.pos
 
         # Si le robot est quelque part sur la carte
         if points is not None and len(points) > 100:
@@ -395,9 +398,11 @@ class DeplacementAutomatique(SousInterface):
         
         if 1 in buttons or "esc" in pressed_keys:
             def quitter():
+                self.utils.cartographie.pos = np.eye(3)
+                self.utils.cartographie.carte = np.eye(1)
                 self.set_active_child(None)
                 self.parent.set_active_child(None)
-
+                
             try:
                 while(self.utils.bt.read() == '1'):
                     self.utils.bt.send("Y\n")
@@ -436,8 +441,8 @@ class DeplacementAutomatique(SousInterface):
         minimap_surface.fill((10, 10, 10)) 
         
         # Récupération des points LIDAR globaux
-        points = self.utils.cartographie.carte.copy()
-        T_robot = self.utils.cartographie.pos.copy() 
+        points = self.utils.cartographie.carte
+        T_robot = self.utils.cartographie.pos
 
         # Si le robot est quelque part sur la carte
         if points is not None and len(points) > 100:

@@ -1,1 +1,15 @@
-null
+{
+    "objet1": {
+        "aire": 75792,
+        "couleur": "vert",
+        "cx": 728.9054121807051,
+        "cy": 296.33440204770955,
+        "distX": 88,
+        "distY": -63,
+        "forme": "carre",
+        "hauteur": 335,
+        "largeur": 308,
+        "x": 576,
+        "y": 132
+    }
+}

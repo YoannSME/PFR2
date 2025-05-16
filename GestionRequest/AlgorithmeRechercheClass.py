@@ -52,7 +52,7 @@ class AlgorithmeRecherche:
                     print("[INFO] je dois tourner de ", angle)
                     direction = "R" if angle > 0 else "L"
                     lastOrientation = direction
-                    self.bt.send(f"{direction}({angle}) S\n")
+                    self.bt.send(f"{direction}({abs(angle)}) S\n")
                     #print("[Info] J'ai tourné")
                     while(self.bt.read()!="1"):
                         self.bt.send("S\n")   
@@ -69,7 +69,6 @@ class AlgorithmeRecherche:
                     while(self.bt.read()!="1"):
                         self.bt.send("S\n")
                     pathImage = self.flask.takePictureClient()
-                    
                     commande[1] = pathImage
                     result = subprocess.run(commande, capture_output=True, text=True)
                     #print("result", result)
@@ -80,8 +79,15 @@ class AlgorithmeRecherche:
                         #print("[Info] Objet perdu pendant l'approche.")
                         break
                 if(objPresent and obj["aire"]>=15000):
-                    self.bt.send("S\n")
-                    self.robotVocal("Objet trouvé"," Hourra !,")
+                    angle = (distX/480)*30
+                    print("[INFO] je dois tourner de ", angle)
+                    direction = "R" if angle > 0 else "L"
+                    lastOrientation = direction
+                    self.bt.send(f"{direction}({abs(angle)}) S\n")
+                    while(self.bt.read()!="1"):
+                        self.bt.send("S\n")
+                    
+                    self.robotVocal("Houra ! Objet trouvé")
                     fin = True
                     return
             else:
@@ -94,7 +100,7 @@ class AlgorithmeRecherche:
             tries += 1
         print("FIN TRAITEMENT")
 
-    def robotVocal(self, text,msgDefaut = "Je vais réaliser les commandes"):
+    def robotVocal(self, text):
             speech = gTTS(text, lang="fr", slow=False)
             # Save the audio file to a temporary file
             speech_file = 'speech.mp3'

@@ -290,20 +290,23 @@ class GestionRequest:
         commandeFiltree = self.filtrerMots(commande)
         print("Commande filtree : ",commandeFiltree)
         
-        text = " ".join(str(c) for c in commandeFiltree)
-        self.robotVocal(text)
-        
+        #text = " ".join(str(c) for c in commandeFiltree)
         requeteCommande = self.transformationRequeteCommande(commandeFiltree)
+        if(requeteCommande == []):
+            self.robotVocal("Je n'ai pas compris la commande")
+            return
         print("commande à effectuer : ",requeteCommande)
         self.envoyerCommande(requeteCommande)
         
-    def robotVocal(self, text,msgDefaut = "Je vais réaliser les commandes"):
+    def robotVocal(self, text):
             speech = gTTS(text, lang="fr", slow=False)
-            # Save the audio file to a temporary file
             speech_file = 'speech.mp3'
             speech.save(speech_file)
-            # Play the audio file
-            os.system('mpg123 ' + speech_file)
+            subprocess.run(
+                ['mpg123', speech_file],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL)
+    
         
         
     def envoyerCommande(self, commande):
@@ -321,7 +324,7 @@ class GestionRequest:
                 while(not self.bt.read()=="1"):
                     pass
         self.bt.send(" S\n")
-        self.robotVocal("J'ai fini."," ")
+        self.robotVocal("J'ai fini.")
         
 
     def tstAutonome(self):
