@@ -16,7 +16,7 @@
         "demi-tour": ["F(100)", "R(180)","F(100)"]
     
     },
-    "actions":["cherche","jusqu'à","jusqu'a","jusque","jusqu","recherche","chercher"],
+    "actions":["cherche","jusqu'à","jusqu'a","jusque","jusqu","recherche","chercher","find","look","search","until"],
 
     "objets":{
         "balle":["balle", "cercle","rond","ball"],
@@ -30,7 +30,7 @@
         "vert":["verte","vert","green"]
     },
     "unites":{
-        "cm":["cm","centimetre","centimetres"],
+        "cm":["cm","centimetre","centimetres","centimeters"],
         "m":["m","M","metre","metres","mètres","maitre","mettre","meters"]
     },
 
