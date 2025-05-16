@@ -2,13 +2,10 @@
 #include <iostream>
 
 int main() {
-    cv::VideoCapture cap("http://172.20.10.5:5000/video_feed");
+    cv::Mat frame = cv::imread("imageRequete.jpg", cv::IMREAD_COLOR);
     //cv::VideoCapture cap(0);
 
-    if (!cap.isOpened()) {
-        std::cerr << "Erreur : impossible d'ouvrir la webcam." << std::endl;
-        return -1;
-    }
+
 
     int h_min = 2, s_min = 163, v_min = 64;
     int h_max = 13, s_max = 255, v_max = 255;
@@ -21,10 +18,10 @@ int main() {
     cv::createTrackbar("V Min", "Trackbars", &v_min, 255);
     cv::createTrackbar("V Max", "Trackbars", &v_max, 255);
 
-    cv::Mat frame, hsv, mask;
+    cv::Mat hsv, mask;
 
     while (true) {
-        cap >> frame;
+      
         if (frame.empty()) break;
 
         cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
@@ -46,7 +43,7 @@ int main() {
         if (cv::waitKey(1) == '27') break;
     }
 
-    cap.release();
+
     cv::destroyAllWindows();
     return 0;
 }

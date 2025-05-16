@@ -1,15 +1,28 @@
 {
     "objet1": {
-        "aire": 75792,
+        "aire": 13992,
+        "couleur": "orange",
+        "cx": 856.2194110920526,
+        "cy": 489.0983419096627,
+        "distX": 216,
+        "distY": 129,
+        "forme": "balle",
+        "hauteur": 132,
+        "largeur": 138,
+        "x": 787,
+        "y": 423
+    },
+    "objet2": {
+        "aire": 11048,
         "couleur": "vert",
-        "cx": 728.9054121807051,
-        "cy": 296.33440204770955,
-        "distX": 88,
-        "distY": -63,
-        "forme": "carre",
-        "hauteur": 335,
-        "largeur": 308,
-        "x": 576,
-        "y": 132
+        "cx": 724.1401158580738,
+        "cy": 313.4090333091962,
+        "distX": 84,
+        "distY": -46,
+        "forme": "balle",
+        "hauteur": 121,
+        "largeur": 118,
+        "x": 666,
+        "y": 253
     }
 }
