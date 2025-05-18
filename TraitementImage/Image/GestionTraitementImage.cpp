@@ -172,7 +172,7 @@ void to_json(nlohmann::json &j, const Objet &obj)
 
 std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleur(cv::Mat image, const std::string &couleur, const std::string &forme)
 {
-    //cv::Mat image = cv::imread(path);
+
     if (image.empty())
     {
         std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
@@ -194,7 +194,6 @@ std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleur(cv::Mat imag
 
 std::vector<Objet> GestionTraitementImage::chercherForme(cv::Mat image,const std::string &forme)
 {
-    //cv::Mat image = cv::imread(path);
     if (image.empty())
     {
         std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
@@ -206,7 +205,6 @@ std::vector<Objet> GestionTraitementImage::chercherForme(cv::Mat image,const std
 
 std::vector<Objet> GestionTraitementImage::chercherCouleur(cv::Mat image,const std::string &couleur)
 {
-    //cv::Mat image = cv::imread(path);
     if (image.empty())
     {
         std::cerr << "Erreur : impossible d’ouvrir l’image" << std::endl;
@@ -215,8 +213,6 @@ std::vector<Objet> GestionTraitementImage::chercherCouleur(cv::Mat image,const s
     Couleur couleurAssociee = getCouleurAssocie(couleur);
     return traiterSelonCouleur(image, couleurAssociee);
 }
-
-/*std::vector<Objet> GestionTraitementImage::chercherObjetAvecCouleurVIDEO(cv::Mat &image, const std::string &couleur, const std::string &forme)
 {
     Couleur couleurRecherchee = getCouleurAssocie(couleur);
     Forme formeRecherchee = getFormeAssocie(forme);

@@ -3,6 +3,7 @@
         "array": "cpp",
         "any": "cpp",
         "string_view": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "xstring": "cpp"
     }
 }

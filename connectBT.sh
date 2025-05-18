@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Adresse MAC de ton module Bluetooth
+# Adresse MAC du module bluetooth de l'arduino
 MAC="98:D3:71:FD:AC:FC"
 
 echo "🔧 Configuration du profil série Bluetooth (SPP)..."

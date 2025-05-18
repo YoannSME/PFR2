@@ -10,18 +10,19 @@ class GestionRequest:
     def __init__(self, pathRequete, pathDico, bt, flask):
         self.pathRequete = os.path.abspath(pathRequete)
         self.pathDico = os.path.abspath(pathDico)
-        print(self.pathDico)
         self.distance_defaut = 100
         self.angle_defaut = 90
         self.angle_defaut_zigzag = 45
         self.dico = self.chargerDictionnaire(self.pathDico)
         self.algorithmes = AlgorithmeRecherche(bt, flask)
-        
-        
         self.bt = bt
         self.flask = flask
 
     def chargerDictionnaire(self, path: str) -> dict:
+        """Charge le dictionnaire (format JSON) contenant tous les mots reconnus par le robot
+        :param path: chemin vers le fichier JSON
+        :return: dictionnaire contenant les mots et leurs catégories
+        """
         path = os.path.abspath(path)
         if not os.path.exists(path):
             raise FileNotFoundError(f"Le fichier {path} n'existe pas.")
@@ -29,6 +30,10 @@ class GestionRequest:
             return json.load(file)
 
     def recupererNombre(self, mot: str) -> int:
+        """Récupère le potentiel nombre contenu dans une chaîne de caractères
+        :param mot: chaîne de caractères contenant un nombre
+        :return: le nombre entier contenu dans la chaîne de caractères ou 0 si aucun nombre n'est trouvé
+        """
         mot = str(mot)
         i = 0
         while i < len(mot) and mot[i].isdigit():
@@ -54,6 +59,11 @@ class GestionRequest:
         return nombre
    
     def convertirUnite(self, nombre:int, unite:str) -> int:
+        """Convertit une valeur numérique en fonction de son unité
+        :param nombre: valeur numérique à convertir 
+        :param unite: unité de la valeur numérique
+        :return: valeur numérique convertie
+        """
         print("convert : nb = ",nombre, " unite = ", unite)
         if(unite == "centimetres" or unite == "c"):
             return nombre
@@ -63,6 +73,10 @@ class GestionRequest:
         return nombre
 
     def associerMot(self, mot: str) -> dict | None:
+        """Cherche le mot dans le dictionnaire et retourne la catégorie, la clé et la valeur associée si il est présent
+        :param mot: mot à associer
+        :return: dictionnaire contenant la catégorie, la clé et la valeur associée au mot
+        """
         if mot in self.dico.get('commandesSpeciales', {}):#Si c'est une commande spéciale : la clé est le mot est les valeurs sont la suite de commande à réaliser
             return {
                 "categorie": "commandesSpeciales",
@@ -100,11 +114,25 @@ class GestionRequest:
         return None
 
     def recupererParametreSuivant(self, requete_filtree: list, indice: int, defaut: int) -> int:
+        """Récupère le paramètre suivant dans la requête filtrée
+        :param requete_filtree: requête filtrée
+        :param indice: indice du mot actuel dans la requête filtrée
+        :param defaut: valeur par défaut à retourner si aucun paramètre n'est trouvé
+        :return: le paramètre suivant ou la valeur par défaut
+        """
+        
         if indice + 1 < len(requete_filtree) and isinstance(requete_filtree[indice + 1], int):
             return self.recupererNombre(requete_filtree[indice + 1])
         return defaut
 
     def filtrerMots(self, requete: list) -> list:
+        """ Garde seulement les mots d'intérêts dans une requête.
+
+    :param requete: Liste de mots à filtrer.
+    :param dico: Dictionnaire contenant les associations de mots.
+
+    :return: Liste de mots filtrés.
+    """
         retour = []
         i = 0
         while i < len(requete):
@@ -131,6 +159,10 @@ class GestionRequest:
 
 
     def traitementNegations(self, requete: list) -> list:
+        """Traite les négations dans la requête
+        :param requete: requête à traiter   
+        :return: requête traitée sans les mots affectés par les négations
+        """
         i = 0
         while i < len(requete):
             if requete[i] in self.dico.get('negations', []):
@@ -142,6 +174,10 @@ class GestionRequest:
         return requete
 
     def transformationRequeteCommande(self, requete_filtree: list) -> list:
+        """Transforme la requête filtrée en une liste de commandes compréhensibles et exécutables par le robot
+        :param requete_filtree: requête filtrée
+        :return: liste de commandes
+        """
         commandes_finales = []
         indice = 0
         while indice < len(requete_filtree):
@@ -177,9 +213,13 @@ class GestionRequest:
 
             indice += 1
         commandeSansNegations = self.traitementNegations(commandes_finales)
-        return self.commandeAutonome(commandeSansNegations)
+        return self.hasCommandeComplexeommandeComplexe(commandeSansNegations)
     
-    def commandeAutonome(self,commande : list):
+    def hasCommandeComplexe(self,commande : list):
+        """Vérifie si une commande complexe (de recherche d'objet) est présente dans la liste de commandes
+        :param commande: liste de commandes
+        :return: liste de commandes avec la ou les commandes complexes mises en forme pour le robot
+        """
         retour = []
         indexMot = 0
         while(indexMot<len(commande)):
@@ -215,9 +255,12 @@ class GestionRequest:
                 
         return retour
     
-    #dans envoyer : if(isinstance mot, list)
-    def traiterAction(self,commandeComplexe : list): #On sait qu'on est dans une requête action
-        #On est dans le cas ou la commande a déjà été filtrée ect.. les fonction à réaliser sont de la forme ["chercher","balle","rouge"]
+
+    def traiterAction(self,commandeComplexe : list): 
+        """Traite une action complexe (de recherche d'objet) et appelle la fonction correspondante dans l'algorithme de recherche
+        :param commandeComplexe: liste de commandes complexes
+        :return: None
+        """
         if len(commandeComplexe) < 2:
             print("Commande incomplète :", commandeComplexe)
             return
@@ -236,84 +279,62 @@ class GestionRequest:
             elif(typePremierMot["categorie"]=="objets" and len(commandeComplexe)==3):
                 self.algorithmes.chercherFormeAvecCouleur(premierMot,commandeComplexe[2])
                   
-    def ecrireCommande(self, path: str,commande: list):
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Le fichier {path} n'existe pas.")
-        commande = ' '.join(commande)
-        commande = commande + " S\n"
-        with open(path, 'w', encoding='utf-8') as file:
-            file.write(commande)
 
     def pilotageVocal(self, language="fr-FR"):
-    
+        """Lance la reconnaissance vocale et traite la commande vocale puis l'envoie au robot
+        :param language: langue de la reconnaissance vocale 
+        :return: None
+        """
         print("Démarrage de la reconnaissance vocale...")
         r = sr.Recognizer()
         with sr.Microphone() as source:
             print("Parlez maintenant...")
             audio_data = r.listen(source)
             print("Traitement de l'audio...")
-
         try:
             result = r.recognize_google(audio_data, language="fr-FR")
-            print(result)  # On imprime dans stdout au lieu d’écrire dans un fichier
         except Exception as e:
             print(f"[ERREUR] {e}")
-            exit(1)  # code d'erreur en cas d'échec
 
-        texte = result.strip().replace("'", " ").lower().split()
-        print("Texte reconnu :", texte)
-
-        motsFiltres = self.filtrerMots(texte)
-        print(" Mots filtrés :", motsFiltres)
-
-        text = " ".join(str(c) for c in motsFiltres)
-        self.robotVocal(text)
-        requete = self.transformationRequeteCommande(motsFiltres)
-        print(" Requête à envoyer :", requete, "| taille :", len(requete))
-
-        self.envoyerCommande(requete)
-
-
-
-    def recupererCommandeVocale(self, path: str) -> list: #Non traitée
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"Le fichier {path} n'existe pas.")
-            with open(path, 'r', encoding='utf-8') as file:
-                commande = file.read().strip().replace("'", " ").split()
-            return commande
+        self.pilotageTextuel(result)
 
     def pilotageTextuel(self, commande):
-        #print(sr.Microphone.list_microphone_names())
-        print(sr.__file__)
-        commande = commande.strip().replace("'", " ").split()
-        print("commande : ",commande)
-        commandeFiltree = self.filtrerMots(commande)
-        print("Commande filtree : ",commandeFiltree)
-        
-        #text = " ".join(str(c) for c in commandeFiltree)
-        requeteCommande = self.transformationRequeteCommande(commandeFiltree)
-        if(requeteCommande == []):
-            self.robotVocal("Je n'ai pas compris la commande")
+        """
+        Traite une commande textuelle et l'envoie au robot.
+        :param commande: commande textuelle brute (chaîne de caractères)
+        :return: None
+        """
+        if not commande or not isinstance(commande, str):
+            self.robotVocal("Commande invalide.")
             return
-        print("commande à effectuer : ",requeteCommande)
+
+        print(f"[INFO] Commande textuelle reçue : {commande}")
+        commande = commande.strip().replace("'", " ").lower().split()
+        commandeFiltree = self.filtrerMots(commande)
+        print(f"[INFO] Mots filtrés : {commandeFiltree}")
+        requeteCommande = self.transformationRequeteCommande(commandeFiltree)
+
+        if not requeteCommande:
+            print("[INFO] Aucune commande comprise.")
+            self.robotVocal("Je n'ai pas compris la commande.")
+            return
+
+        print(f"[INFO] Commande envoyée : {requeteCommande}")
         self.envoyerCommande(requeteCommande)
         
     def robotVocal(self, text):
             speech = gTTS(text, lang="fr", slow=False)
+            # Save the audio file to a temporary file
             speech_file = 'speech.mp3'
             speech.save(speech_file)
-            subprocess.run(
-                ['mpg123', speech_file],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL)
-    
-        
-        
-    def envoyerCommande(self, commande):
-        #if not os.path.exists(path):
-         #   raise FileNotFoundError(f"Le fichier{path} n'existe pas.")
-        #with open(path,'r',encoding='utf8') as file:
-         #   commande = file.read().strip().split()
+            # Play the audio file
+            os.system('mpg123 ' + speech_file)
+            
+    def envoyerCommande(self, commande : list):
+        """Envoie la commande au robot via Bluetooth
+        :param commande: liste de commandes à envoyer
+        :return: None
+        """
         for action in commande:
             if(isinstance(action,list)):
                 self.traiterAction(action)
@@ -325,31 +346,3 @@ class GestionRequest:
                     pass
         self.bt.send(" S\n")
         self.robotVocal("J'ai fini.")
-        
-
-    def tstAutonome(self):
-        commande = "avance de 100m puis avance de 200 centimètres puis cherche une balle, puis cherche un carré bleu puis cherche une couleur verte"
-        #commande = "cherche balle"
-        commande = commande.strip().replace("'", " ").split()
-        print("commande : ",commande)
-        commandeFiltree = self.filtrerMots(commande)
-        print("Commande filtree : ",commandeFiltree)
-        commandeAutonome = self.commandeAutonome(commandeFiltree)
-        print("Commande autonome : ",commandeAutonome)
-        commandeNeg = self.traitementNegations(commandeAutonome)
-        print("Commande neg : ",commandeNeg)
-        RC = self.transformationRequeteCommande(commandeFiltree)
-        print("RC",RC)
-        motRetour = []
-        for mots in RC:
-            if(isinstance(mots,list)):
-                self.traiterAction(mots)
-            else:
-                print(mots)
-
-        
-        
-#AJOUTER UNE FONCTION du type : si le mot courant est une liste alors : Si il y a 1 argument et que c'est un objet : appeler code C : chercherObjet, couleur : chercherCouleur, 2 arguments : chercherObjetAvecCouleur
-if __name__ == '__main__':
-  requete = GestionRequest()
-  requete.tstAutonome()
