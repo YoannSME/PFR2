@@ -213,20 +213,7 @@ std::vector<Objet> GestionTraitementImage::chercherCouleur(cv::Mat image,const s
     Couleur couleurAssociee = getCouleurAssocie(couleur);
     return traiterSelonCouleur(image, couleurAssociee);
 }
-{
-    Couleur couleurRecherchee = getCouleurAssocie(couleur);
-    Forme formeRecherchee = getFormeAssocie(forme);
-    std::vector<Objet> objets = traiterSelonCouleur(image, couleurRecherchee);
-    std::vector<Objet> objetsInterets;
-    for (Objet &obj : objets)
-    {
-        if (obj.forme == formeRecherchee)
-        {
-            objetsInterets.push_back(obj);
-        }
-    }
-    return objetsInterets;
-}*/
+
 
 void GestionTraitementImage::sauvegarderResultats(const std::vector<Objet> &objets)
 {
